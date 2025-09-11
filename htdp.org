@@ -1,0 +1,4140 @@
+#+title: Htdp
+
+* HOW TO DESIGN PROGRAMS
+
+* Table Of Contents :TOC:
+- [[#how-to-design-programs][HOW TO DESIGN PROGRAMS]]
+- [[#preface][PREFACE]]
+  - [[#systematic-program-design][Systematic Program design]]
+- [[#prologue-how-to-program][Prologue: How to program]]
+  - [[#intro-to-drracket][Intro to DrRacket]]
+  - [[#arithmetic-and-arithmetic][Arithmetic and Arithmetic]]
+  - [[#input-and-output][Input and Output]]
+  - [[#syntaxis-of-racket][Syntaxis of Racket]]
+  - [[#many-ways-to-compute][Many ways to compute]]
+- [[#fixed-size-data][Fixed-Size Data]]
+  - [[#arithmetic][Arithmetic]]
+  - [[#functions-and-programs][Functions and Programs]]
+  - [[#3-how-to-design-programs][3 How to Design Programs]]
+  - [[#4-intervals-enumerations-and-itemizations][4 Intervals, Enumerations, and Itemizations]]
+
+* PREFACE
+** Systematic Program design
+1. *From problem analysis to Data Definitions*
+   Identify the information that must be represented and how it is represented in the chosen programming language. Formulate data definitions and illustrate them with examples.
+
+2. *Signature, Purpose Statement, Header*
+   State what kind of data the desired function consumes and produces. Formulate a concise answer to the question /what/ the function computes. Define a stub that lives up to the signature.
+
+3. *Functional Examples*
+   Work through examples that illustrate the function's purpose.
+
+4. *Function Template*
+   Translate the data definitions into an outline of the function.
+
+5. *Function Definition*
+   Fill the gaps in the function template. Exploit the purpose statement and the examples.
+
+6. *Testing*
+   Articulate the examples as tests and ensure that the function passes all. Doing so discovers mistakes Tests also supplement examples in that they help others read and understand the definition when the need arises –and it will arise for any serious program
+
+#+begin_src racket
+#lang racket
+(+ 1 2)
+#+end_src
+
+#+RESULTS:
+: 3
+
+* Prologue: How to program
+** Intro to DrRacket
+First operation
+#+begin_src racket
+#lang htdp/bsl
+(+ 1 1)
+(+ 2 2)
+(* 3 3)
+(- 4 2)
+(/ 6 2)
+(sqr 3)
+(expt 2 3)
+(sin 0)
+(cos pi)
+#+end_src
+
+#+RESULTS:
+: 2
+: 4
+: 9
+: 2
+: 3
+: 9
+: 8
+: 0
+: #i-1.0
+
+Starting with compositions
+#+begin_src racket
+#lang htdp/bsl
+(+ 2 (+ 3 4))
+(+ 2 3 4)
+(+ 2 (+ (* 3 3) 4))
+(+ 2 (+ (* 3 (/ 12 4)) 4))
+(+ (* 5 5) (+ (* 3 (/ 12 4)) 4))
+#+end_src
+
+#+RESULTS:
+: 9
+: 9
+: 15
+: 15
+: 38
+
+Operations for lists
+#+begin_src racket
+#lang htdp/bsl
+(+ 1 2 3 4 5 6 7 8 9 0)
+(* 1 2 3 4 5 6 7 8 9 0)
+#+end_src
+
+#+RESULTS:
+: 45
+: 0
+
+** Arithmetic and Arithmetic
+*** Manipulating strings :D
+#+begin_src racket
+#lang htdp/bsl
+"hello world"
+(string-append "hello" "world")
+(string-append "hello " "world")
+#+end_src
+
+#+RESULTS:
+: "hello world"
+: "helloworld"
+: "hello world"
+
+*** Mixing operations with numbers
+#+begin_src racket
+#lang htdp/bsl
+(+ (string-length "hello world") 20)
+(number->string 42)
+#+end_src
+
+#+RESULTS:
+: 31
+: "42"
+
+*** Casting
+#+begin_src racket
+#lang htdp/bsl
+(string->number "42")
+(string->number "hello world")
+#+end_src
+
+#+RESULTS:
+: 42
+: #false
+
+*** Booleans
+#+begin_src racket
+#lang htdp/bsl
+(and #true #true)
+
+(and #true #false)
+
+(or #true #false)
+
+(or #false #false)
+
+(not #false)
+#+end_src
+
+#+RESULTS:
+: #true
+: #false
+: #true
+: #false
+: #true
+
+*** Number comparison
+#+begin_src racket
+#lang htdp/bsl
+(> 10 9)
+
+(< -1 0)
+
+(= 42 9)
+#+end_src
+
+#+RESULTS:
+: #true
+: #true
+: #false
+
+*** The book asked for these three expressions this time:
+#+begin_src racket
+#lang htdp/bsl
+(>= 10 10)
+(<= -1 0)
+(string=? "design" "tinker")
+#+end_src
+
+#+RESULTS:
+: #true
+: #true
+: #false
+
+*** Another book request:
+#+begin_src racket
+#lang htdp/bsl
+(and (or (= (string-length "hello world")
+            (string->number "11"))
+         (string=? "hello world" "good morning"))
+     (>= (+ (string-length "hello world") 60) 80))
+#+end_src
+
+#+RESULTS:
+: #false
+
+*** Managing images (test by fire)
+This failed, the image processing stuff will be done entirely in Dr Racket...
+But this will be a usefull require while generating images
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(circle 10 "solid" "red")
+(rectangle 30 20 "outline" "blue")
+#+end_src
+
+#+RESULTS:
+: #<image>
+: #<image>
+
+*** Helpfull image arithmetic functions
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(overlay (circle 5 "solid" "red")
+         (rectangle 20 20 "solid" "blue"))
+
+(overlay (rectangle 20 20 "solid" "blue")
+         (circle 5 "solid" "red"))
+
+(image-width (square 10 "solid" "red"))
+
+(image-width
+    (overlay (rectangle 20 20 "solid" "blue")
+             (circle 5 "solid" "red")))
+
+(place-image (circle 5 "solid" "green")
+             50 80
+             (empty-scene 100 100))
+#+end_src
+
+** Input and Output
+Somethig like logical sequences
+
+*** Definition concept
+#+begin_src racket
+#lang htdp/bsl
+(define (y x) (* x x))
+(y 1)
+(y 2)
+(y 3)
+(y 4)
+(y 5)
+
+(y 10)
+#+end_src
+
+#+RESULTS:
+: 1
+: 4
+: 9
+: 16
+: 25
+: 100
+
+** Syntaxis of Racket
+A function definition looks like this
+=(define (/functionName/ /InputName/) /BodyExpression/)=
+
+A body expression, or rather an s-exp, is a function application
+=(/FunctionName/ /ArgumentExpression/)=
+
+*** A shot with animate
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(define image (circle 5 "solid" "red"))
+(define (picture-of-rocket height)
+  (place-image image 50 height (empty-scene 100 600)))
+(animate picture-of-rocket)
+#+end_src
+
+#+RESULTS:
+: 134
+
+**** The animate function
+It does work by sending 28 clock ticks per second to the nested function
+
+** Many ways to compute
+Functions for many situations
+*** Conditionals
+#+begin_src racket
+#lang htdp/bsl
+(define (sign x)
+  (cond
+    [(> x 0) 1]
+    [(= x 0) 0]
+    [(< x 0) -1]))
+
+(sign 10)
+(sign -5)
+(sign 0)
+#+end_src
+
+#+RESULTS:
+: 1
+: -1
+: 0
+
+*** Corrected falling ball
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(define rocket (circle 15 "solid" "red"))
+(define (picture-of-rocket.v2 height)
+  (cond
+    [(<= height (- 60 (/ (image-height rocket) 2)))
+     (place-image rocket 50 height
+                  (empty-scene 100 60))]
+    [(> height (- 60 (/ (image-height rocket) 2)))
+     (place-image rocket 50 (- 60 (/ (image-height rocket) 2))
+                  (empty-scene 100 60))]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 1220
+
+*** The =define= statement
+=(define /Name/ /Expression/)=
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define WIDTH 100)
+(define HEIGHT 400)
+(define ROCKET (circle 15 "solid" "red"))
+
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h (- HEIGHT (/ (image-height ROCKET) 2)))
+     (place-image ROCKET 50 h
+                  (empty-scene WIDTH HEIGHT))]
+    [(> h (- HEIGHT (/ (image-height ROCKET) 2)))
+     (place-image ROCKET 50 (- HEIGHT (/ (image-height ROCKET) 2))
+                  (empty-scene WIDTH HEIGHT))]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 1157
+
+*** Refactoring v1.1
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define EMPTY (empty-scene WIDTH HEIGHT)) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 225
+
+**** Small excercises
+- [X] How would you change the program to create a 200-by-400 scene?
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define EMPTY (empty-scene WIDTH HEIGHT)) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+- [X] How would you change the program so that it depicts the landing of a green UFO (unidentified flying object)? Drawing the UFO is easy:
+
+=(overlay (circle 10 "solid" "green")=
+         =(rectangle 40 4 "solid" "green"))=
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define EMPTY (empty-scene WIDTH HEIGHT)) ; Short for empty scene
+;;(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET (overlay (circle 10 "solid" "green")
+                        (rectangle 40 4 "solid" "green")))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 170
+
+- [X] How would you change the program so that the background is always blue?
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define EMPTY (place-image (rectangle WIDTH HEIGHT "solid" "blue")
+                           (/ WIDTH 2)
+                           (/ HEIGHT 2)
+               (empty-scene WIDTH HEIGHT))) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 265
+
+- [X] How would you change the program so that the rocket lands on a flat rock bed that is 10 pixels higher than the bottom of the scene? Don’t forget to change the scenery, too.
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define MID-WIDTH (/ WIDTH 2))
+(define BED-HEIGHT 10)
+(define ROCKBED (rectangle WIDTH BED-HEIGHT "solid" "gray"))
+(define EMPTY (place-image
+               ROCKBED
+               MID-WIDTH
+               (+ HEIGHT (/ BED-HEIGHT 2))
+               (empty-scene WIDTH (+ HEIGHT BED-HEIGHT)))) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 100 ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 566
+
+**** Getting rid of the last magic number
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define MID-WIDTH (/ WIDTH 2))
+(define BED-HEIGHT 10)
+(define ROCKBED (rectangle WIDTH BED-HEIGHT "solid" "gray"))
+(define EMPTY (place-image
+               ROCKBED
+               MID-WIDTH
+               (+ HEIGHT (/ BED-HEIGHT 2))
+               (empty-scene WIDTH (+ HEIGHT BED-HEIGHT)))) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET MID-WIDTH h EMPTY)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET MID-WIDTH ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+**** Changing the h fot t in the function definition
+To state that the function actually operates with time
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Constants
+(define WIDTH 200)
+(define HEIGHT 400)
+(define MID-WIDTH (/ WIDTH 2))
+(define BED-HEIGHT 10)
+(define ROCKBED (rectangle WIDTH BED-HEIGHT "solid" "gray"))
+(define EMPTY (place-image
+               ROCKBED
+               MID-WIDTH
+               (+ HEIGHT (/ BED-HEIGHT 2))
+               (empty-scene WIDTH (+ HEIGHT BED-HEIGHT)))) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v2 t)
+  (cond
+    [(<= t ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET MID-WIDTH t EMPTY)]
+    [(> t ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET MID-WIDTH ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(animate picture-of-rocket.v2)
+#+end_src
+
+#+RESULTS:
+: 1475
+
+*** Stating Physics
+Redoing everything to make it more like the program in the book
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+; Properties of the "world" and the descending rocket
+(define WIDTH 100)
+(define HEIGHT 60)
+(define V 3)
+(define X 50)
+
+; Graphical constants
+(define EMPTY (empty-scene WIDTH HEIGHT)) ; Short for empty scene
+(define ROCKET (circle 15 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket t)
+  (cond
+    [(<= (distance t) ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET X (distance t) EMPTY)]
+    [(> (distance t) ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET X ROCKET-CENTER-TO-TOP EMPTY)]))
+
+(define (distance t)
+  (* V t))
+
+(animate picture-of-rocket)
+#+end_src
+
+#+RESULTS:
+: 170
+
+* Fixed-Size Data
+Every programming language comes with a language of data an a language of operations on data.
+
+** Arithmetic
+#+begin_src racket
+#lang htdp/bsl
+(+ 1 2)
+(+ 1 (+ 1 (+ 1 1) 2) 3 4 5)
+#+end_src
+
+#+RESULTS:
+: 3
+: 18
+
+*** The Arithmetic of Numbers
+You can use many arithmetic functions already built in bsl
+#+begin_src racket
+#lang htdp/bsl
+(sin 30)
+#+end_src
+
+#+RESULTS:
+: #i-0.9880316240928618
+
+Definitions
+#+begin_src racket
+#lang htdp/bsl
+
+(define x 3)
+(define y 4)
+
+; Pitagoras
+(define (pitagoras x y)
+  (sqrt (+ (sqr x) (sqr y))))
+
+(pitagoras x y)
+(pitagoras 12 5)
+#+end_src
+
+#+RESULTS:
+: 5
+: 13
+
+*** The Arithmetic of Strings
+A quick example
+#+begin_src racket
+#lang htdp/bsl
+
+(string-append "What a " "lovely " "day" " 4 BSL")
+#+end_src
+
+#+RESULTS:
+: What a lovely day 4 BSL
+
+**** Exercise 2.
+#+begin_src racket
+#lang htdp/bsl
+
+(define prefix "hello")
+(define suffix "world")
+
+;; Concatenate the prefix and suffix with a "_" in between
+(define (concatenatev pre suf)
+  (string-append pre "_" suf))
+
+(concatenatev prefix suffix)
+#+end_src
+
+#+RESULTS:
+: hello_world
+
+**** Another usefull string operations
+- =string-length= consumes a string and produces a number;
+- =string-ith= consumes a string s together with a number i and extracts the 1String located at the ith position (counting from 0); and
+- =number->string= consumes a number and produces a string.
+- Also look up =substring= and find out what it does.
+
+**** Moving fast and...
+#+begin_src racket
+#lang htdp/bsl
+
+(string-length 42)
+#+end_src
+
+#+RESULTS:
+
+**** Exercise 3
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "helloworld")
+(define ind "0123456789")
+(define i 5)
+
+;; Create an expression that adds "_" at position i
+; Exprected result "hello_world"
+(define (insert-dund str i)
+  (string-append (substring str 0 i) "_" (substring str i)))
+
+(insert-dund str i)
+#+end_src
+
+#+RESULTS:
+: hello_world
+
+**** Exercise 4
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "helloworld")
+(define ind "0123456789")
+(define i 5)
+(define min-s 0)
+(define max-s (- (string-length str) 1))
+
+;; Create an expression that adds "_" at position i
+; Exprected result "hello_world"
+(define (delete-ith str i)
+  (cond
+    [(and (>= i min-s) (<= i max-s))
+     (string-append (substring str 0 i) (substring str (+ i 1)))]
+    [(> min-s i)
+     "Less than zero"]
+    [(> i max-s)
+     "out f range"]))
+
+(delete-ith str i)
+(delete-ith str 11)
+(delete-ith str 0)
+(delete-ith str -1)
+#+end_src
+
+#+RESULTS:
+: "helloorld"
+: "out f range"
+: "elloworld"
+: "Less than zero"
+
+*** The Arithmetic of Images
+An /Image/ is a visual, rectangular piece of data
+**** Functions for image manipulation/creation
+- =circle= produces a circle image from a radius, a mode string, and a color string;
+- =ellipse= produces an ellipse from two diameters, a mode string, and a color string;
+- =line= produces a line from two points and a color string;
+- =rectangle= produces a rectangle from a width, a height, a mode string, and a color string;
+- =text= produces a text image from a string, a font size, and a color string; and
+- =triangle= produces an upward-pointing equilateral triangle from a size, a mode string, and a color string.
+
+The names of these operations mostly explain what kind of image they create. All you must know is that /mode strings/ means ="solid"= or ="outline"= and /color strings/ are strings such as ="orange"=, ="black"=, and so on.
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(circle 10 "solid" "green")
+(rectangle 10 20 "solid" "blue")
+(star 12 "solid" "gray")
+
+#+end_src
+
+#+RESULTS:
+: #<image>
+: #<image>
+: #<image>
+
+**** More operations with images
+- =image-width= determines the width of an image in terms of pixels;
+- =image-height= determines the height of an image;
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(image-width (circle 10 "solid" "red"))
+(image-height (rectangle 10 20 "solid" "blue"))
+
+(+ (image-width (circle 10 "solid" "red"))
+   (image-height (rectangle 10 20 "solid" "blue")))
+
+#+end_src
+
+#+RESULTS:
+: 20
+: 20
+: 40
+
+**** Operations with images relative to an anchor point
+- =overlay= places all the images to which it is applied on top of each other, using the center as anchor point;
+- =overlay/xy= is like =overlay= but accepts two numbers—x and y—between two image arguments. It shifts the second image by x pixels to the right and y pixels down—all with respect to the first image’s top-left corner; unsurprisingly, a negative x shifts the image to the left and a negative y up; and
+- =overlay/align= is like =overlay= but accepts two strings that shift the anchor point(s) to other parts of the rectangles. There are nine different positions overall; experiment with all possibilities!
+
+**** Usefull operations for animations and games
+- =empty-scene= creates a rectangle of some given width and height;
+- =place-image= places an image into a scene at a specified position. If the image doesn’t fit into the given scene, it is appropriately cropped;
+- =scene+line= consumes a scene, four numbers, and a color to draw a line into the given image. Experiment with it to see how it works.
+
+For illustrative purposes, some image arithmetic references:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(overlay (square 4 "solid" "orange")
+         (circle 6 "solid" "yellow"))
+
+(underlay (circle 6 "solid" "yellow")
+          (square 4 "solid" "orange"))
+
+(place-image (circle 6 "solid" "yellow")
+             10 10
+             (empty-scene 20 20))
+#+end_src
+
+#+RESULTS:
+: #<image>
+: #<image>
+: #<image>
+
+**** Exercise 5, create the image of a simple boat or tree
+
+#+begin_src racket :results output
+#lang htdp/bsl
+(require 2htdp/image)
+
+(save-image (overlay/offset (ellipse 20 30 "solid" "green")
+                0 19
+                (rectangle 5 20 "solid" "brown")) "ex05.png")
+"[[file:ex05.png]]"
+"file:/home/rob25/pers/htdp/ex05.png"
+#+end_src
+
+#+RESULTS:
+: #true
+: "[[file:ex05.png]]"
+: "file:/home/rob25/pers/htdp/ex05.png"
+
+[[file:/home/rob25/pers/htdp/ex05.png]]
+
+**** Exercise 6, count the pixels of an image
+#+begin_src racket :results output
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define cat (ellipse 50 65 "solid" "brown"))
+(save-image cat "ex06.png")
+
+(define (image-area image)
+  (* (image-width image) (image-height image)))
+
+(image-area cat)
+#+end_src
+
+#+RESULTS:
+: #true
+: 3250
+
+[[file:/home/rob25/pers/htdp/ex06.png]]
+
+*** The Arithmetic of Booleans
+
+**** *Exercise 7*. Boolean expressions can express some everyday problems. Suppose you want to decide whether today is an appropriate day to go to the mall. You go to the mall either if it is not sunny or if today is Friday (because that is when stores post new sales items).
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define sunny #true)
+(define friday #false)
+
+(define (go? sunny friday)
+  (or (not sunny) friday))
+
+(go? sunny friday)
+(go? #false #true)
+#+end_src
+
+#+RESULTS:
+: #false
+: #true
+
+*** Mixing It up with Booleans
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define x 2)
+(define inverse-of-x (/ 1 x))
+
+(if (= x 0) 0 (/ 1 x))
+#+end_src
+
+#+RESULTS:
+: 0.5
+
+More or less it works like this:
+#+begin_quote
+(if (= x 0) 0 (/ 1 x))
+== ; because x stands for 2
+(if (= 2 0) 0 (/ 1 2))
+== ; 2 is not equal to 0, (= 2 0) is #false
+(if #false 0 (/ 1 2))
+==
+(/ 1 2)
+== ; normalize this to its decimal representation
+0.5
+#+end_quote
+
+**** Testing strings
+#+begin_src racket
+#lang htdp/bsl
+
+(string=? "hola" "hola")
+(string<=? "iihola" "ihola")
+(string>=? "iihola" "ihola")
+#+end_src
+
+#+RESULTS:
+: #true
+: #false
+: #true
+
+**** Exercise 8
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define tall-cat (ellipse 30 40 "solid" "brown"))
+(define wide-cat (ellipse 50 40 "solid" "brown"))
+(define sqr-cat (circle 40 "solid" "brown"))
+
+(define (type-of-shape img)
+  (cond
+    [(> (image-height img) (image-width img))
+     "tall"]
+    [(< (image-height img) (image-width img))
+     "wide"]
+    [(= (image-height img) (image-width img))
+     "square"]))
+
+(type-of-shape tall-cat)
+(type-of-shape wide-cat)
+(type-of-shape sqr-cat)
+#+end_src
+
+#+RESULTS:
+: "tall"
+: "wide"
+: "square"
+
+*** Predicates: Know Thy Data
+A predicate is a function that consumes a value and determines whether or not it belongs to the same class of data.
+#+begin_src racket
+#lang htdp/bsl
+
+(number? 4)
+(number? pi)
+(number? #true)
+(number? "fortytwo")
+
+(rational? pi)
+(sqrt -1)
+#+end_src
+
+#+RESULTS:
+: #true
+: #true
+: #false
+: #false
+: #true
+: 0+1i
+
+**** Exercise 9
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define in "hola")
+
+(define (area in)
+  (* (image-height in) (image-width in)))
+
+(define (weird in)
+  (cond
+    [(string? in) (string-length in)]
+    [(image? in) (area in)]
+    [(number? in) (abs in)]
+    [(boolean? in) (if in 10 20)]))
+
+(weird in)
+(weird (circle 5 "solid" "blue"))
+(weird -32)
+(weird #false)
+(weird #true)
+#+end_src
+
+#+RESULTS:
+: 4
+: 100
+: 32
+: 20
+: 10
+
+**** Exercise 10. Relax, eat, sleep, and then tackle the next chapter
+
+** Functions and Programs
+Let's tackle algebra, I guess...
+
+*** Functions:
+- Definitions:
+  Every BSL program consist of several definitions. There are two kinds of definitions:
+  * /Constant definitions/, of the shape =(define /Variable Expression/)=, which we encountered in the preceding chapter; and
+  * /function definitions/, which comes in many flavors, one of which we used in the Prologue.
+
+Like expressions, function definitions in BSL come in a uniform shape:
+=(define (/FunctionName Variable ... Variable/) /Expression/)=
+Examples:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (f x) 1)
+(define (g x y) (+ 1 1))
+(define (h x y z) (+ (* 2 2) 3))
+#+end_src
+
+#+RESULTS:
+
+**** Variables aren't data; they represent data. For example, a constant definition such as
+#+begin_src racket
+(define x 3)
+
+(define (ff a) ...)
+
+(define (ff a)
+  (* 10 a))
+#+end_src
+
+**** Playing with the function that always returns 1
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define (f x) 1)
+
+(f 1)
+(f "hello world")
+(f #true)
+(f (circle 3 "solid" "red"))
+#+end_src
+
+#+RESULTS:
+: 1
+: 1
+: 1
+: 1
+
+**** Keep playing
+#+begin_src racket
+#lang htdp/bsl
+
+(define (ff x)
+  (* 10 x))
+
+(+ (ff 3) 2)
+(* (ff 4) (+ (ff 3) 2))
+(ff (ff 1))
+#+end_src
+
+#+RESULTS:
+: 32
+: 1280
+: 100
+
+**** Exercise 11 Pythagoras's function
+#+begin_src racket
+#lang htdp/bsl
+
+(define (pyth x y)
+  (sqrt (+ (sqr x) (sqr y))))
+
+(pyth 3 4)
+#+end_src
+
+#+RESULTS:
+: 5
+
+**** Exercise 12. Define the function =cvolume=, which accepts the length of a side of an equilateral cube and computes its volume. If you have time, consider defining =csurface=, too.
+#+begin_src racket
+#lang htdp/bsl
+
+(define x 3)
+
+(define (cvolume x)
+  (* x (* x x)))
+
+(define (csurface x)
+  (* 6 (* x x)))
+
+(cvolume x)
+(csurface x)
+#+end_src
+
+#+RESULTS:
+: 27
+: 54
+
+**** Exercise 13. Define the function =string-first=, which extracts the first /1String/ from a *non-empty* string.
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "hola")
+(define str1 "say hello")
+
+(define (string-first str)
+  (if (<= (string-length str) 0) "empty string" (string-ith str 0)))
+
+(string-first str)
+(string-first str1)
+(string-first "")
+#+end_src
+
+#+RESULTS:
+: "h"
+: "s"
+: "empty string"
+
+**** Exercise 14. Define the function =string-last=, which extracts the last /1String/ from a non-empty string.
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "hola")
+(define str1 "say hello")
+
+(define (string-last str)
+  (if (<= (string-length str) 0)
+      "Empty string"
+      (string-ith str (- (string-length str) 1))))
+
+(string-last str)
+(string-last str1)
+(string-last "")
+#+end_src
+
+#+RESULTS:
+: "a"
+: "o"
+: "Empty string"
+
+**** Exercise 15. Define ===>=. The function consumes two Boolean values, call them =sunny= and =friday=. Its answer is #true if =sunny= is false or =friday= is true.
++ *Note* Logicians call this Boolean operation /implication/, and they use the notation /sunny => friday/ for this purpose.
+#+begin_src racket
+#lang htdp/bsl
+
+(define sunny #true)
+(define friday #false)
+
+(define (s==>f sunny friday)
+  (if (or (not sunny) friday)
+      #true
+      #false))
+
+(s==>f sunny friday)
+(s==>f #false #false)
+(s==>f #true #true)
+(s==>f #false #true)
+#+end_src
+
+#+RESULTS:
+: #false
+: #true
+: #true
+: #true
+
+**** Exercise 16. Define the function =image-area=, which count the number of pixels in a given image.
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define qt-sh (ellipse 10 30 "solid" "red"))
+
+(define (image-area img)
+  (* (image-width img) (image-height img)))
+
+(image-area qt-sh)
+#+end_src
+
+#+RESULTS:
+: 300
+
+**** Exercise 17. Define the function =image-classify=, which consumes an image and conditionally produces ="tall"= if the image is taller than wide, ="wide"= if it is wider than tall, or ="square"= if its width and height are the same.
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define tall-cat (ellipse 30 40 "solid" "brown"))
+(define wide-cat (ellipse 50 40 "solid" "brown"))
+(define sqr-cat (circle 40 "solid" "brown"))
+
+(define (type-of-shape img)
+  (cond
+    [(> (image-height img) (image-width img)) "tall"]
+    [(< (image-height img) (image-width img)) "wide"]
+    [(= (image-height img) (image-width img)) "square"]))
+
+(type-of-shape tall-cat)
+(type-of-shape wide-cat)
+(type-of-shape sqr-cat)
+#+end_src
+
+#+RESULTS:
+: "tall"
+: "wide"
+: "square"
+
+**** Exercise 18. Define the function =string-join=, which consumes two strings and appends them with ="_"= in between.
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define prefix "hello")
+(define suffix "world")
+
+;; Concatenate the prefix and suffix with a "_" in between
+(define (string-join pre suf)
+  (string-append pre "_" suf))
+
+(string-join prefix suffix)
+#+end_src
+
+#+RESULTS:
+: hello_world
+
+**** Exercise 19. Define the function =string-insert=, which consumes a string =str= plus a number =i= and inserts ="_"= at the /ith/ position of =str=. Assume =i= is a number between 0 and the length of the string (inclusive). Ponder how =string-insert= copes with =""=.
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "helloworld")
+(define ind "0123456789")
+(define i 5)
+
+;; Create an expression that adds "_" at position i
+; Exprected result "hello_world"
+(define (string-insert str i)
+  (string-append (substring str 0 i) "_" (substring str i)))
+
+(string-insert str i)
+#+end_src
+
+#+RESULTS:
+: hello_world
+
+**** Exercise 20. Define the function =string-delete=, which consumes a string plus a number =i= and deletes the /ith/ position from =str=. Assume =i= is a number between 0 (inclusive)and the length of the given string (exclusive). Can =string-delete= deal with empty strings?
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define str "helloworld")
+(define ind "0123456789")
+(define i 5)
+(define min-s 0)
+(define max-s (- (string-length str) 1))
+
+;; Create an expression that adds "_" at position i
+; Exprected result "hello_world"
+(define (string-delete str i)
+  (cond
+    [(and (>= i min-s) (<= i max-s))
+     (string-append (substring str 0 i) (substring str (+ i 1)))]
+    [(> min-s i)
+     "Less than zero"]
+    [(> i max-s)
+     "out f range"]))
+
+(string-delete str i)
+(string-delete str 11)
+(string-delete str 0)
+(string-delete str -1)
+#+end_src
+
+#+RESULTS:
+: "helloorld"
+: "out f range"
+: "elloworld"
+: "Less than zero"
+
+*** Computing
+Functions and definitions work in tandem.
+**** Exercise 21. Use DrRacket's stepper to evaluate =(ff (ff 1))= step-by-step. Also try =(+ (ff 1) (ff 1))=. Does DrRacket's stepper reuse the results of computations?
+Sadly done in DrRacket...
+
+**** Arithmetic playtime...
+#+begin_src racket
+#lang htdp/bsl
+
+(define (opening first-name last-name)
+  (string-append "Dear " first-name ","))
+
+(opening "Matthew" "Fisler")
+;; "Fisler iss gone, I guess.."
+#+end_src
+
+#+RESULTS:
+: Dear Matthew,
+
+**** Exercise 22. Use DrRacket's stepper on this program fragment:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (distance-to-origin x y)
+  (sqrt (+ (sqr x) (sqr y))))
+
+(distance-to-origin 3 4)
+#+end_src
+
+#+RESULTS:
+: 5
+
+**** Exercise 23. The first /1String/ in ="hello world"= is ="h"=. How does the following function compute this result?
+#+begin_src racket
+#lang htdp/bsl
+
+(define (string-first s)
+  (substring s 0 1))
+
+(string-first "hello world")
+#+end_src
+
+#+RESULTS:
+: h
+
+**** Exercise 24. Here is the definition of ===>=:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (==> x y)
+  (or (not x) y))
+
+(==> #true #false)
+#+end_src
+
+**** Exercise 25. Fix this abomination:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+(define tall-eli (ellipse 20 30 "solid" "red"))
+(define wide-eli (ellipse 40 30 "solid" "red"))
+(define sqr-eli (ellipse 40 40 "solid" "red"))
+
+(define (image-classify img)
+  (cond
+    [(> (image-height img) (image-width img)) "tall"]
+    [(= (image-height img) (image-width img)) "square"]
+    [(< (image-height img) (image-width img)) "wide"]))
+
+(image-classify wide-eli)
+(image-classify tall-eli)
+(image-classify sqr-eli)
+#+end_src
+
+#+RESULTS:
+: "wide"
+: "tall"
+: "square"
+
+**** Exercise 26. Guess the output:
+
++ I think it will be: ="hellow_orld"=
+#+begin_src racket
+#lang htdp/bsl
+
+(define (string-insert s i)
+  (string-append (substring s 0 i)
+                 "_"
+                 (substring s i)))
+
+(string-insert "helloworld" 6)
+#+end_src
+
+#+RESULTS:
+: hellow_orld
++ And I was right :D
+
+*** Composing Functions
+A program rarely consists of a single function. Typically, programs consist of a /main/ definition and several other functionsand turn the result of one function application into the input of another.
+
+**** A batch program:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(define (letter first-name last-name signature-name)
+  (string-append
+    (opening first-name)
+    "\n\n"
+    (body first-name last-name)
+    "\n\n"
+    (closing signature-name)))
+
+(define (opening first-name)
+  (string-append "Dear " first-name ","))
+
+(define (body first-name last-name)
+  (string-append
+   "We have discovered that all people with the" "\n"
+   "last name " last-name " have won our lottery. So, " "\n"
+   first-name ", " "hurry and pick up your prize."))
+
+(define (closing signature-name)
+  (string-append
+   "Sincerely,"
+   "\n\n"
+   signature-name
+   "\n"))
+
+; (letter "Matthew" "Fisler" "Felleisen")
+; (letter "Kathi" "Felleisen" "Findler")
+
+(write-file 'stdout (letter "Matt" "Fiss" "Fell"))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Dear Matt,
+
+We have discovered that all people with the
+last name Fiss have won our lottery. So,
+Matt, hurry and pick up your prize.
+
+Sincerely,
+
+Fell
+'stdout
+#+end_example
+
++ Follow the philosophy of:
+  /Define one function per task./
+
+**** Analysis Time:
+*Sample Problem* The owner of a monopolistic movie theater in a small town has complete freedom in setting ticket prices. The more he charges, the fewer people can afford tickets. The less he charges, the more it costs to run a show because attendance goes up. In a recent experiment the owner determined a relationship between the price of a ticket and average attendance.
+
+At a price of $5.00 per ticket, 120 people attend a performance. For each 10-cent change in the ticket price, the average attendance changes by 15 people. That is, if the owner charges $5.10, some 105 people attend on the average; if the price goes down to $4.90, average attendance increases to 135. Let’s translate this idea into a mathematical formula:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (avg-att change)
+  (- 120 (* 15 (/ change 0.1))))
+#+end_src
+
+Unfortunately, the increased attendance also comes at an increased cost. Every performance comes at a fixed cost of $180 to the owner plus a variable cost of $0.04 per attendee.
+
+The owner would like to know the exact relationship between profit and ticket price in order to maximize the profit.
+
+***** 1. The problem statement specifies how the number of attendees depends on the ticket price. Computing this number is clearly a separate task and thus deserves its own function definition:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (attendees ticket-price)
+  (- 120 (* (- ticket-price 5.0) (/ 15 0.1))))
+#+end_src
+
+***** 2. The /revenue/ is exclusively generated by the sale of tickets, meaning it is exactly the product of ticket price and number of attendees:
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define (revenue ticket-price)
+  (* ticket-price (attendees ticket-price)))
+#+end_src
+
+***** 3. The /cost/ consists of two parts: a fixed part ($180) and a variable part that depends on the number of attendees. Given that the number of attendees is a function of the ticket price, a function for computing the cost of a show must also consume the ticket price so that it can reuse the attendees function:
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define (cost ticket-price)
+  (+ 180 (* 0.04 (attendees ticket-price))))
+#+end_src
+
+***** 4. Finally, /profit/ is the difference between revenue and costs for some given ticket price:
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define (profit ticket-price)
+  (- (revenue ticket-price)
+     (cost ticket-price)))
+#+end_src
+The BSL definition of profit directly follows the suggestion of the informal problem description.
+
+**** Exercise 27. Our solution to the sample problem contains several constants in the middle of functions. As One Program, Many Definitions already points out, it is best to give names to such constants so that future readers understand where these numbers come from. Collect all definitions in DrRacket’s definitions area and change them so that all magic numbers are refactored into constant definitions.
+#+begin_src racket
+#lang htdp/bsl
+
+(define base-attend 120)
+(define base-price 5)
+(define inc-attend-pdim 15)
+(define dime-inc 0.1)
+(define fixed-cost 180)
+(define cost-p-attend 0.04)
+
+(define (attendees ticket-price)
+  (- base-attend (* (- ticket-price base-price) (/ inc-attend-pdim dime-inc))))
+
+(define (revenue ticket-price)
+  (* ticket-price (attendees ticket-price)))
+
+(define (cost ticket-price)
+  (+ fixed-cost (* cost-p-attend (attendees ticket-price))))
+
+(define (profit ticket-price)
+  (- (revenue ticket-price)
+     (cost ticket-price)))
+
+#+end_src
+
+#+RESULTS:
+
+**** Exercise 28. Determine the potential profit for these ticket prices: $1, $2, $3, $4, and $5. Which price maximizes the profit of the movie theater? Determine the best ticket price to a dime.
+#+begin_src racket
+#lang htdp/bsl
+
+(define base-attend 120)
+(define base-price 5)
+(define inc-attend-pdim 15)
+(define dime-inc 0.1)
+(define fixed-cost 180)
+(define cost-p-attend 0.04)
+
+(define (attendees ticket-price)
+  (- base-attend (* (- ticket-price base-price) (/ inc-attend-pdim dime-inc))))
+
+(define (revenue ticket-price)
+  (* ticket-price (attendees ticket-price)))
+
+(define (cost ticket-price)
+  (+ fixed-cost (* cost-p-attend (attendees ticket-price))))
+
+(define (profit ticket-price)
+  (- (revenue ticket-price)
+     (cost ticket-price)))
+
+(profit 1)
+(profit 2)
+(profit 3)
+(profit 4)
+(profit 5)
+#+end_src
+
+#+RESULTS:
+: 511.2
+: 937.2
+: 1063.2
+: 889.2
+: 415.2
+
+
+Using the monolit:
+#+begin_src racket
+#lang htdp/bsl
+
+(define (profit price)
+  (- (* (+ 120
+           (* (/ 15 0.1)
+              (- 5.0 price)))
+        price)
+     (+ 180
+        (* 0.04
+           (+ 120
+              (* (/ 15 0.1)
+                 (- 5.0 price)))))))
+
+(profit 1)
+(profit 2)
+(profit 3)
+(profit 4)
+(profit 5)
+#+end_src
+
+#+RESULTS:
+: 511.2
+: 937.2
+: 1063.2
+: 889.2
+: 415.2
+
+**** Exercise 29. After studying the costs of a show, the owner discovered several ways of lowering the cost. As a result of these improvements, there is no longer a fixed cost; a variable cost of $1.50 per attendee remains.
+
++ starting with the simplest
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define base-attend 120)
+(define base-price 5)
+(define inc-attend-pdim 15)
+(define dime-inc 0.1)
+(define fixed-cost 0)
+(define cost-p-attend 1.5)
+
+(define (attendees ticket-price)
+  (- base-attend (* (- ticket-price base-price) (/ inc-attend-pdim dime-inc))))
+
+(define (revenue ticket-price)
+  (* ticket-price (attendees ticket-price)))
+
+(define (cost ticket-price)
+  (+ fixed-cost (* cost-p-attend (attendees ticket-price))))
+
+(define (profit ticket-price)
+  (- (revenue ticket-price)
+     (cost ticket-price)))
+
+(profit 1)
+(profit 2)
+(profit 3)
+(profit 4)
+(profit 5)
+#+end_src
+
+#+RESULTS:
+: -360
+: 285
+: 630
+: 675
+: 420
+
++ Now we go with this monster...
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define (profit price)
+  (- (* (+ 120
+           (* (/ 15 0.1)
+              (- 5.0 price)))
+        price)
+     (+ 0
+        (* 1.5
+           (+ 120
+              (* (/ 15 0.1)
+                 (- 5.0 price)))))))
+
+(profit 1)
+(profit 2)
+(profit 3)
+(profit 4)
+(profit 5)
+#+end_src
+
+#+RESULTS:
+: -360
+: 285
+: 630
+: 675
+: 420
+
+*** Global Constants
+Remember how to define a constant:
+
+1. Write ="(define"=,
+
+2. write down the name,
+
+3. followed by a space and an expression, and
+
+4. write down =")"=.
+
+#+begin_src racket
+#lang htdp/bsl
+
+; The current price of a movie ticket:
+(define CURRENT-PRICE 5)
+
+; useful to compute the area of a disk:
+(define ALMOST-PI 3.14)
+
+; a blank  line:
+(define NL "\n")
+
+; an empty scene:
+(define MT (empty-scene 100 100))
+#+end_src
+
+/For every constant mentioned in a problem statement, introduce one constant definition/
+
+**** Exercise 30. Define constants for the price optimization program at the movie theater so that the price sensitivity of attendance (15 people for every 10 cents) becomes a computed constant.
+
+#+begin_src racket
+#lang htdp/bsl
+
+(define base-attend 120)
+(define base-price 5)
+(define inc-attend-pdim 15)
+(define dime-inc 0.1)
+(define fixed-cost 0)
+(define cost-p-attend 1.5)
+(define PRICE-SEN-OF-ATTN (/ inc-attend-pdim dime-inc))
+
+(define (attendees ticket-price)
+  (- base-attend (* (- ticket-price base-price) PRICE-SEN-OF-ATTN)))
+
+(define (revenue ticket-price)
+  (* ticket-price (attendees ticket-price)))
+
+(define (cost ticket-price)
+  (+ fixed-cost (* cost-p-attend (attendees ticket-price))))
+
+(define (profit ticket-price)
+  (- (revenue ticket-price)
+     (cost ticket-price)))
+
+(profit 1)
+(profit 2)
+(profit 3)
+(profit 4)
+(profit 5)
+#+end_src
+
+#+RESULTS:
+: -360
+: 285
+: 630
+: 675
+: 420
+
+*** Programs
+From a coding perspective, a program is just a bunch of function and constant definitions.
++ Usually one function is singled out as the "main" function, and this main function tends to compose others.
++ From the perspective of launching a program, however, there are two distinct kinds.
+
+#+begin_quote
++ a batch program consumes all of its inputs at once and computes its result. Its main function is the composition of auxiliary functions, which may refer to additional auxiliary functions, and so on. When we launch a batch program, the operating system calls the main function on its inputs and waits for the program’s output.
+
++ an interactive program consumes some of its inputs, computes, produces some output, consumes more input, and so on. When an input shows up, we speak of an event, and we create interactive programs as event-driven programs. The main function of such an event-driven program uses an expression to describe which functions to call for which kinds of events. These functions are called event handlers.
+
+When we launch an interactive program, the main function informs the operating system of this description. As soon as input events happen, the operating system calls the matching event handler. Similarly, the operating system knows from the description when and how to present the results of these function calls as output.
+#+end_quote
+
+A new require to use from now on:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require 2htdp/batch-io) ; <- The new one
+#+end_src
+
+Useful new functions available in =2htdp/batch-io=:
+
++ =read-file=, which reads the content of an entire file as a string, and
++ =write-file=, which creates a file from a given string.
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(write-file "sample.dat" "212")
+
+(read-file "sample.dat")
+#+end_src
+
+#+RESULTS:
+: "sample.dat"
+: "212"
+
+For pragmatic reasons, =write-file= also accepts ='stdout=, a special kind of token, as the first argument. It then displays the resulting file content in the current interactions area, for example:
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(write-file 'stdout "212\n")
+#+end_src
+
+#+RESULTS:
+: 212
+: 'stdout
+
+A simple batch program for temp units comversion
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(define (C f)
+  (* 5/9 (- f 32)))
+
+(C 32)
+(C 212)
+(C -40)
+#+end_src
+
+#+RESULTS:
+: 0
+: 100
+: -40
+
+But suppose we wish to use this function as part of a program that reads the Fahrenheit temperature from a file, converts this number into a Celsius temperature, and then creates another file that contains the result.
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(define (C f)
+  (* 5/9 (- f 32)))
+
+(define (convert in out)
+  (write-file out
+              (string-append
+               (number->string
+                (C
+                 (string->number
+                  (read-file in))))
+               "\n")))
+
+(convert "sample.dat" 'stdout)
+
+(convert "sample.dat" "out.dat")
+
+(read-file "out.dat")
+#+end_src
+
+#+RESULTS:
+: 100
+: 'stdout
+: "out.dat"
+: "100"
+
+**** Exercise 31. Recall the =letter= program from /Compossing Functions/. Here is how to launch the program and have it write its output to the interactions area:
+
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(define (letter first-name last-name signature-name)
+  (string-append
+    (opening first-name)
+    "\n\n"
+    (body first-name last-name)
+    "\n\n"
+    (closing signature-name)))
+
+(define (opening first-name)
+  (string-append "Dear " first-name ","))
+
+(define (body first-name last-name)
+  (string-append
+   "We have discovered that all people with the" "\n"
+   "last name " last-name " have won our lottery. So, " "\n"
+   first-name ", " "hurry and pick up your prize."))
+
+(define (closing signature-name)
+  (string-append
+   "Sincerely,"
+   "\n\n"
+   signature-name
+   "\n"))
+
+; (letter "Matthew" "Fisler" "Felleisen")
+; (letter "Kathi" "Felleisen" "Findler")
+
+(write-file 'stdout (letter "Matt" "Fiss" "Fell"))
+#+end_src
+
+Of course, programs are useful because you can launch them for many different inputs. Run letter on three inputs of your choice.
+
+Here is a letter-writing batch program that reads names from three files and writes a letter to one:
+#+begin_src racket
+(define (main in-fst in-lst in-signature out)
+  (write-file out
+              (letter (read-file in-fst)
+                      (read-file in-lst)
+                      (read-file in-signature))))
+#+end_src
+The function consumes four strings: the first three are the names of input files and the last one serves as an output file. It uses the first three to read one string each from the three named files, hands these strings to =letter=, and eventually writes the result of this function call into the file named by out, the fourth argument to main.
+Create appropriate files, launch main, and check whether it delivers the expected letter in a given file.
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(write-file "f-name.dat" "Matthew")
+
+(write-file "l-name.dat" "Fisler")
+
+(write-file "s-name.dat" "Felleisen")
+#+end_src
+
+#+RESULTS:
+: "f-name.dat"
+: "l-name.dat"
+: "s-name.dat"
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/batch-io)
+
+(define in-fst "f-name.dat")
+(define in-lst "l-name.dat")
+(define in-signature "s-name.dat")
+
+(define (letter first-name last-name signature-name)
+  (string-append
+    (opening first-name)
+    "\n\n"
+    (body first-name last-name)
+    "\n\n"
+    (closing signature-name)))
+
+(define (opening first-name)
+  (string-append "Dear " first-name ","))
+
+(define (body first-name last-name)
+  (string-append
+   "We have discovered that all people with the" "\n"
+   "last name " last-name " have won our lottery. So, " "\n"
+   first-name ", " "hurry and pick up your prize."))
+
+(define (closing signature-name)
+  (string-append
+   "Sincerely,"
+   "\n\n"
+   signature-name
+   "\n"))
+
+(define (main in-fst in-lst in-signature out)
+  (write-file out
+              (letter (read-file in-fst)
+                      (read-file in-lst)
+                      (read-file in-signature))))
+
+(main in-fst in-lst in-signature 'stdout)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Dear Matthew,
+
+We have discovered that all people with the
+last name Fisler have won our lottery. So,
+Matthew, hurry and pick up your prize.
+
+Sincerely,
+
+Felleisen
+'stdout
+#+end_example
+
+**** Exercise 32. Most people no longer use desktop computers just to run applications but also employ cell phones, tablets, and their cars’ information control screen. Soon people will use wearable computers in the form of intelligent glasses, clothes, and sports gear. In the somewhat more distant future, people may come with built-in bio computers that directly interact with body functions. Think of ten different forms of events that software applications on such computers will have to deal with.
+
+1. They would deal with illumination to adjust brightness.
+2. they would deal with voice commands
+3. they surely had to deal with environmental noise
+4. they may react to updates when becoming available
+5. they may react to another device getting close to them.
+6. they could receive gestures as commands.
+7. they could react to blood pressure.
+8. they could react to blood chemistry.
+9. they could react to brain's electric signals.
+10. they could react to environmental conditions as temperature, altitude of barometric pressure.
+
+**** =big-bang=
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define (number->square s)
+  (square s "solid" "red"))
+
+; (big-bang 100 [to-draw number->square])
+
+(big-bang 100
+          [to-draw number->square]
+          [on-tick sub1]
+          [stop-when zero?])
+#+end_src
+
+#+RESULTS:
+: 0
+
++ Add interactive behavior:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define (reset s ke)
+  100)
+
+(define (number->square s)
+  (square s "solid" "red"))
+
+; (big-bang 100 [to-draw number->square])
+
+(big-bang 100
+          [to-draw number->square]
+          [on-tick sub1]
+          [stop-when zero?]
+          [on-key reset])
+#+end_src
+
+#+RESULTS:
+: 77
+
++ Small exercise, Reformulate the first sequence of events as an expression.
+  #+begin_src racket
+(sub1 (sub1 (sub1 cw0)))
+  #+end_src
+
+  #+RESULTS:
+
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define BACKGROUND (empty-scene 100 100))
+(define DOT (circle 3 "solid" "red"))
+
+(define (main y)
+  (big-bang y
+    [on-tick sub1]
+    [stop-when zero?]
+    [to-draw place-dot-at]
+    [on-key stop]))
+
+(define (place-dot-at y)
+  (place-image DOT 50 y BACKGROUND))
+
+(define (stop y ke)
+  0)
+
+(main 100)
+#+end_src
+
+#+RESULTS:
+: 0
+
+** 3 How to Design Programs
+
+**** Exercise 33. Research the "year 2000" problem.
+It could be related to the Chronos protect, but I've already said too much S:
+
+*** 3.1 Designing Functions
+*Information and Data* The purpose of a program in too describe a computational process that consumes some information and produces new information.
+
+**** Information and Data
+Given the central role of information and data, program design must start with the connection between them.
+Specifically, we, the programmers, must decide how to use our chosen programming language to /represent/ the relevant pieces of information as data and how we should /interpret/ data as information.
+
+**** Example
+To make this idea concrete, let’s work through some examples. Suppose you are designing a program that consumes and produces information in the form of numbers. While choosing a representation is easy, an interpretation requires explaining what a number such as 42 denotes in the domain:
+
++ 42 may refer to the number of pixels from the top margin in the domain of images;
++ 42 may denote the number of pixels per clock tick that a simulation or game object moves;
++ 42 may mean a temperature, on the Fahrenheit, Celsius, or Kelvin scale for the domain of physics;
++ 42 may specify the size of some table if the domain of the program is a furniture catalog; or
++ 42 could just count the number of characters in a string.
+
+A *Data Definition* example
+#+begin_src racket
+; A temperature is a Number.
+; Interpretation: represents Celsius degrees
+#+end_src
+
+**** The design process
+
+1. Express how you wish to represent information as data. A one-line comment suffices:
+  #+begin_quote
+  ; We use numbers to represent centimeters
+  #+end_quote
+
+  Formulate data definitions, like the one for =Temperature=, for the classes of data you consider relevant for the successful design of your program.
+
+2. Write down a signature, a statement of purpose, and a function header.
+   A /function signature/ is a comment that tells the readers of your design how many inputs your function consumes, from which classes they are drawn, and what kind of data it produces. Here are the examples for functions that respectively
+   + Consume one =String= ad produce a =Number=:
+     #+begin_quote
+     ; =String= -> =Number=
+     #+end_quote
+
+   + Consume a =Temperature= and produce a =String=:
+    #+begin_quote
+    ; =Temperature= -> =String=
+    #+end_quote
+
+    As this signature points out , introducing a data definition as an alias for an existing form of data makes it easy to read the intention behind signatures.
+
+   + Consume a =Number=, a =String=, and an =Image=:
+    #+begin_quote
+    ; =Number String Image= -> =Image=
+    #+end_quote
+
+A /purpose statement/ is a BSL comment that summarizes the purpose of the function in a single line. If you are ever in doubt about a purpose statement, write down the shortest possible answer to the question
+***** IDEA
+/What does the function compute?/
+
+**** Function headers that match the above three signatures:
+#+begin_src racket
+(define (f a-string) 0)
+
+(define (g n) "a")
+
+(define (h num str img) (empty-scene 100 100))
+#+end_src
+
+When you formulate a purpose statement, is is often useful to employ the parameter names to clarify what is computed. For example,
+#+begin_quote
+; =Number String Image= -> =Image=
+; adds =s= to =img=,
+; =y= pixels from the top and =10= from left
+(define (add-image y s img)
+  (empty-scene 100 100))
+#+end_quote
+
+3. Illustrate the signature and the purpose statement with some functional examples. To construct a /functional example/, pick one piece of data from each input class from the signature and determine what you expect back.
+
+   #+begin_src racket
+#lang htdp/bsl
+; Number -> Number
+; computes the area of a square with side len
+; given: 2, expect: 4
+; given: 7, expect: 49
+(define (area-of-square len) 0)
+   #+end_src
+
+4. The next step is to take /inventory/, to understand what are the givens and what we need to compute. For the simple functions we are considering right now, we know that they are given data via parameters. While parameters are placeholders for values that we don't know yet, we do know that it is from this unknown that the function must compute its result. to remind ourselves of this fact, we replace the function's body with a /template/.
+
+   #+begin_src racket
+#lang htdp/bsl
+
+; Number -> Number
+; computes the area of a square with side len
+; given: 2, expect: 4
+; given: 7, expect: 49
+(define (area-of-square len)
+  (... len ...))
+   #+end_src
+
+5. It is now time to /code/. In general, to code means to program, though often in the narrowest possible way, namely, to write executable expressions and function definitions.
+
+      #+begin_src racket
+#lang htdp/bsl
+
+; Number -> Number
+; computes the area of a square with side len
+; given: 2, expect: 4
+; given: 7, expect: 49
+(define (area-of-square len)
+  (sqr len))
+   #+end_src
+
+   #+RESULTS:
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+; Number String Image -> Image
+; adds s to img, y pixels from top, 10 pixels from the left
+; given:
+;    5 for y,
+;    "hello" for s, and
+;    (empty-scene 100 100) for img
+; expectd:
+;    (place-image (text "hello"" 10 "red") 10 5 ...)
+;    where ... is (empty-scene 100 100)
+(define (add-image y s img)
+  (place-image (text s 10 "red") 10 y img))
+#+end_src
+
+#+RESULTS:
+
+6. The last step of a proper design is to test the function on the examples that you worked out before.
+
+   #+begin_src racket
+#lang htdp/bsl
+
+; Number -> Number
+; computes the area of a square with side len
+; given: 2, expect: 4
+; given: 7, expect: 49
+(define (area-of-square len)
+  (sqr len))
+
+(area-of-square 2)
+(area-of-square 7)
+   #+end_src
+
+   #+RESULTS:
+   : 4
+   : 49
+
+**** NOTE
+If the result doesn't match the expected output, consider the following three possibilities:
+
+a. You miscalculated and determined the wrong expected output for some of the examples.
+b. Alternatively, the function definition computes the wrong result. When this is the case, you have a logical error in your program, also known as a bug.
+c. Both the examples and the function definition are wrong.
+
+*** 3.2 Finger Exercises: Functions
+
+**** Exercise 34. Design the function =string-first=, which extracts the first character from a non-empty string. Don't worry about empty string.
+#+begin_src racket
+#lang htdp/bsl
+
+; String -> String
+; Extracts the first character from a given string s
+; given: "hola", expect: "h"
+; given: "adios", expect: "a"
+(define (string-first s)
+  (substring s 0 1))
+
+(string-first "hola")
+(string-first "adios")
+#+end_src
+
+#+RESULTS:
+: "h"
+: "a"
+
+**** Exercise 35. Design the function =string-last=, which extracts the last character from a non-empty string.
+#+begin_src racket
+#lang htdp/bsl
+
+; String -> String
+; Extracts the last character from a given string s
+; given: "hola", expect: "a"
+; given: "adios", expect: "s"
+(define (string-last s)
+  (substring s (sub1 (string-length s))))
+
+(string-last "hola")
+(string-last "adios")
+#+end_src
+
+#+RESULTS:
+: "a"
+: "s"
+
+**** Exercise 36. Design the function =image-area=, which counts the number of pixels in a given image.
+#+begin_src racket
+#lang htdp/bsl
+(require 2htdp/image)
+
+; Image -> Number
+; Counts the nnumber of pixels in a given image img
+; given: (circle 5 "solid" "red"), expect: 100
+; given: (rectangle 3 7 "solid" "green"), expect: 21
+(define (image-area img)
+  (* (image-height img) (image-width img)))
+
+(image-area (circle 5 "solid" "red"))
+(image-area (rectangle 3 7 "solid" "green"))
+#+end_src
+
+#+RESULTS:
+: 100
+: 21
+
+**** Exercise 37. Design the function =string-rest=, which produces a string like the given one with the first character removed.
+#+begin_src racket
+#lang htdp/bsl
+
+; String -> Sring
+; Takes a string s and returns another without the first character
+; given: "hola", expect: "ola"
+; given: "adios", expect: "dios"
+(define (string-rest s)
+  (substring s 1))
+
+(string-rest "hola")
+(string-rest "adios")
+#+end_src
+
+#+RESULTS:
+: "ola"
+: "dios"
+
+**** Exercise 38. Design the function =string-remove-last=, which produces a string like the given one with the /last/ character removed.
+#+begin_src racket
+#lang htdp/bsl
+
+; String -> String
+; Take a string s and returns another without the last character
+; given: "hola", expect: "hol"
+; given: "adios", expect: "adio"
+(define (string-remove-last s)
+  (substring s 0 (sub1 (string-length s))))
+
+(string-remove-last "hola")
+(string-remove-last "adios")
+#+end_src
+
+#+RESULTS:
+: "hol"
+: "adio"
+
+*** 3.3 Domain Knowledge
+It is natural to wonder what knowledge it takes to code up the body of a function. A little bit of reflection tells you that this step demands an appropriate grasp of the domain of the program. Indeed, there are two forms of such /domain knowledge/:
+
+1. Knowledge from external domains, such as mathematics, music, biology, civil engineering, art, and so on.
+2. Knowledge about the teachpack functions in the chosen programming language.
+
+
+*** 3.4 From Functions to Programs
+It is good to be aware of the necessity of composing many functions in order to create a program
+Here, the book talks about the concept of /wish list/.
+
+*** 3.5 On Testing
+#+begin_src racket :results output :lang htdp/bsl
+;; #lang htdp/bsl
+(require test-engine/racket-tests) ;; Emacs workaround...
+
+; Number -> Number
+; converts Fahrenheit temperatures to Celsius
+; given 32, expect 0
+; given 212, expect 100
+; given -40, expect -40
+(define (f2c f)
+  (* 5/9 (- f 32)))
+
+(check-expect (f2c -40) 40)
+(check-expect (f2c 32) 0)
+(check-expect (f2c 212) 100)
+(test)                          ;; Second part of the emacs workaround
+#+end_src
+
+#+RESULTS:
+: Ran 3 tests.
+: 1 of the 3 tests failed.
+: Check failures:
+:                      ┌─────┐              ┌────┐
+:         Actual value │ -40 │ differs from │ 40 │, the expected value.
+:                      └─────┘              └────┘
+: in ob-cvwVZS.rkt, line 14, column 0
+
+Apparently, tests can be placed anywhere...
+#+begin_src racket :lang htdp/bsl
+(require test-engine/racket-tests)
+
+; Number -> Number
+; converts Fahrenheit temperatures to Celsius temperatures
+
+(check-expect (f2c -40) -40)
+(check-expect (f2c 32) 0)
+(check-expect (f2c 212) 100)
+
+(define (f2c f)
+  (* 5/9 (- f 32)))
+
+(test)
+#+end_src
+
+#+RESULTS:
+: All 3 tests passed!
+
++ The instruction =check-expect= also works with images, but I don't have anything meaningfull at hand yet...
+
+
+*** 3.6 Designing World Programs
+Depending on the needs of the program, the programmer must then design functions that respond to clock ticks, keystrokes, and mouse events.
+An interactive program may need to stop when its current world belongs to a sub-class of states; =end?= recognizes these /final states/.
+
++ This is a wish list for designing world programs
+#+begin_src racket :lang htdp/bsl
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw) ...)
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (clock-tick-handler cw) ...)
+
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+(define (keystroke-handler cw ke) ...)
+
+; WorldState Number Number String -> WorldState
+; for each mouse gesture, big-bang obtains the next state
+; from (mouse-event-handler cw x y me) where x and y are
+; the coordinates of the event and me is its description
+(define (mouse-event-handler cw x y me) ...)
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw) ...)
+#+end_src
+
+#+RESULTS:
+
+
+**** /Sample Problem/ Design a program that moves a car from left to right on the world canvas, three pixels per clock tick.
+
+The design recipe for world programs. like the one for functions, is a tool for systematically moving from a problem statement to a working program. It consists of three big steps and one small one:
+
+1. For all those properties of the world that remain the same over time and are needed to render it as an =Image=, introduce constants. In BSL, we specify such constants via definitions. For the purpose of world programs, we distinguish between two kinds of constants:
+
+   a. “Physical” constants describe general attributes of objects in the world, such as the speed or velocity of an object, its color, its height, its width, its radius, and so forth. Of course these constants don’t really refer to physical facts, but many are analogous to physical aspects of the real world.
+#+begin_src racket :lang htdp/bsl
+(define WIDTH-OF-WORLD 200)
+
+(define WHEEL-RADIUS 5)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+#+end_src
+
+   b. Graphical constants are images of objects in the world. The program composes them into images that represent the complete state of the world.
+#+begin_src racket :lang htdp/bsl
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+(define SPACE
+  (rectangle ... WHEEL-RADIUS ... "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+#+end_src
+
+2. Those properties that change over time—in reaction to clock ticks, keystrokes, or mouse actions—give rise to the current state of the world. Your task is to develop a data representation for all possible states of the world. The development results in a data definition, which comes with a comment that tells readers how to represent world information as data and how to interpret data as information about the world.
+#+begin_src racket :lang htdp/bsl
+; A WorldState is a Number.
+; interpretation the number of pixels between
+; the left border of the scene and the car
+
+#+end_src
+
+3. Once you have a data representation for the state of the world, you need to design a number of functions so that you can form a valid big-bang expression.
+#+begin_src racket :lang htdp/bsl
+; render
+
+; clock-tick-handler
+; keystroke-handler
+; mouse-event-handler
+
+; end?
+#+end_src
+
+**Sample Program**
+#+begin_src racket :lang htdp/bsl
+; WorldState -> Image
+; places the image of the car x pixels from
+; the left margin of the BACKGROUND image
+(define (render x)
+  BACKGROUND)
+
+; WorldState -> WorldState
+; adds 3 to x to move the car right
+(define (tock x)
+  x)
+#+end_src
+
+4. Finally, you need a =main= function. Unlike all other functions, a =main= function for world programs doesn’t demand design or testing. Its sole reason for existing is that you can *launch* your world program conveniently from DrRacket’s interactions area.
+#+begin_src racket :lang htdp/bsl
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tok]
+            [to-draw render]))
+
+; launch with
+(main 13)
+#+end_src
+
+
+**** Exercise 39. [1/1]
+- [X] Develop your favorite image of an automobile so that =WHEEL-RADIUS= remains the single point of control.
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define WIDTH-OF-WORLD 200)
+
+(define WHEEL-RADIUS 10)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 6))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(save-image CAR "CAR.png")
+#+end_src
+
+#+RESULTS:
+: #true
+[[file:/home/rob25/pers/htdp/CAR.png]]
+
+**** Exercise 40. Formulate the examples as BSL tests, that is, using the =check-expect= form. introduce a mistake. Re-run the tests.
+#+begin_src racket :lang htdp/bsl
+(require test-engine/racket-tests)
+
+; WorldState -> WorldState
+; moves the car by 3 pixels for every clock tick
+; examples:
+;   given: 20, expect 23
+;   given: 78, expect 81
+(define (tock cw)
+  (+ cw 3))
+
+(check-expect (tock 20) 23)
+(check-expect (tock 78) 81)
+(check-expect (tock 12) 15)
+(test)
+#+end_src
+
+#+RESULTS:
+: All 3 tests passed!
+
+**** Exercise 41. [3/3]
+- [X] Finish the sample problem and get the program to run. That is, assuming that you have solved *exercise 39*, define the constants =BACKGROUND= and =Y-CAR=. Then assemble all the function definitions, including their tests.
+- [X] When your program runs to your satisfaction, add the a tree to the scenery
+- [X] Also add a clause to the =big-bang= expression that stops the animation when the car disappeared on the right side.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define WHEEL-RADIUS 20)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 6))
+(define WIDTH-OF-WORLD (* WHEEL-RADIUS 40))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(define Y-CAR (- HEIGHT-OF-WORLD (/ (image-height CAR) 2)))
+
+(define CAR-STOP (+ WIDTH-OF-WORLD (/ (image-width CAR) 2)))
+
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+(define tree
+  (underlay/xy (circle (* WHEEL-RADIUS 2) "solid" "green")
+               (* WHEEL-RADIUS 9/5) (* WHEEL-RADIUS 3)
+               (rectangle
+                (* WHEEL-RADIUS 2/5)
+                (* WHEEL-RADIUS 4)
+                "solid" "brown")))
+
+(define Y-TREE (- HEIGHT-OF-WORLD (/ (image-height tree) 2)))
+
+(define TREE-BG (place-image
+                 tree
+                 (/ WIDTH-OF-WORLD 2)
+                 Y-TREE
+                 BACKGROUND))
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image CAR cw Y-CAR TREE-BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (+ cw 3))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (>= cw (- CAR-STOP 15)))
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [stop-when end?]))
+
+(check-expect (tock 10) 13)
+(check-expect (tock 18) 21)
+(check-expect (render 40) (place-image CAR 40 Y-CAR TREE-BG))
+(check-expect (render 160) (place-image CAR 160 Y-CAR TREE-BG))
+(check-expect (end? CAR-STOP) #true)
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: All 5 tests passed!
+: 867
+
+**** Exercise 42. Modify the interpretation of the sample data definition so that a state denotes the x-coordinate of the right-most edge of the car.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define WHEEL-RADIUS 20)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 6))
+(define WIDTH-OF-WORLD (* WHEEL-RADIUS 40))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(define Y-CAR (- HEIGHT-OF-WORLD (/ (image-height CAR) 2)))
+
+(define CAR-STOP (+ WIDTH-OF-WORLD (/ (image-width CAR) 2)))
+
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+(define tree
+  (underlay/xy (circle (* WHEEL-RADIUS 2) "solid" "green")
+               (* WHEEL-RADIUS 9/5) (* WHEEL-RADIUS 3)
+               (rectangle
+                (* WHEEL-RADIUS 2/5)
+                (* WHEEL-RADIUS 4)
+                "solid" "brown")))
+
+(define Y-TREE (- HEIGHT-OF-WORLD (/ (image-height tree) 2)))
+
+(define TREE-BG (place-image
+                 tree
+                 (/ WIDTH-OF-WORLD 2)
+                 Y-TREE
+                 BACKGROUND))
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image CAR (- cw (image-width CAR)) Y-CAR TREE-BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (+ cw 3))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (>= cw CAR-STOP))
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [stop-when end?]))
+
+(check-expect (tock 10) 13)
+(check-expect (tock 18) 21)
+; (check-expect (render 40) (place-image CAR 40 Y-CAR TREE-BG))
+; (check-expect (render 160) (place-image CAR 160 Y-CAR TREE-BG))
+(check-expect (end? CAR-STOP) #true)
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: All 3 tests passed!
+: 480
+
+**** Exercise 43. Use the data definition to design a program that moves the car according to a sine wave.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define WHEEL-RADIUS 20)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 12)) ; Previously 6
+(define WIDTH-OF-WORLD (* WHEEL-RADIUS 40))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(define Y-CAR (- HEIGHT-OF-WORLD (/ (image-height CAR) 2)))
+
+(define CAR-STOP (+ WIDTH-OF-WORLD (/ (image-width CAR) 2)))
+
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+(define tree
+  (underlay/xy (circle (* WHEEL-RADIUS 2) "solid" "green")
+               (* WHEEL-RADIUS 9/5) (* WHEEL-RADIUS 3)
+               (rectangle
+                (* WHEEL-RADIUS 2/5)
+                (* WHEEL-RADIUS 4)
+                "solid" "brown")))
+
+(define Y-TREE (- HEIGHT-OF-WORLD (/ (image-height tree) 2)))
+
+(define TREE-BG (place-image
+                 tree
+                 (/ WIDTH-OF-WORLD 2)
+                 Y-TREE
+                 BACKGROUND))
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image
+   CAR
+   (- (* cw 40) (image-width CAR))
+   (+ (/ Y-CAR 2) (* (sin cw) 50))
+   TREE-BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (+ cw 0.1))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (>= cw CAR-STOP))
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [stop-when end?]))
+
+; (check-expect (tock 10) 13)
+; (check-expect (tock 18) 21)
+; (check-expect (render 40) (place-image CAR 40 Y-CAR TREE-BG))
+; (check-expect (render 160) (place-image CAR 160 Y-CAR TREE-BG))
+(check-expect (end? CAR-STOP) #true)
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: The test passed!
+: 38
+
+**** Not en exercise (yet) but a challenge, I guess...
+*Sample Problem* Design a program that moves a car across the world canvas, from left to right, at the rate of three pixels per clock tick. *If the mouse is clicked anywhere on the canvas, the car is placed at the x-coordinate of that click.*
+
+1. There are no new properties, meaning we do not need new constants.
+
+2. The program is still concerned with just one property that changes over time, the x-coordinate of the car. Hence, the data representation suffices.
+
+3. The revised problem statement calls for a mouse-event handler, without  giving up on the clock-based movement of the car. Hence, we state an appropriate wish:
+#+begin_src racket :lang htdp/bsl
+; WorldState Number Number String -> WorldState
+; places the car at x-mouse
+; if the given me is "button-down"
+(define (hyper x-position-of-car x-mouse y-mouse me)
+  x-position-of-car)
+#+end_src
+
+4. Lastly, we need to modify =main= to take care of mouse events. All this requires is the addition of an =on-mouse= clause that defers to the new entry on your wish list:
+#+begin_src racket :lang htdp/bsl
+(define (main ws)
+  (big-bang ws
+            [on-tick tok]
+            [on-mouse hyper]
+            [to-draw render]))
+#+end_src
+   After all, the modified problem calls for dealing with mouse clicks and everything else remains the same.
+
+   The rest is a mere matter of designing one more function, and for that we use the design recipe for functions.
+
+An entry on the wish list covers the first two steps of the design recipe for functions. Hence, our next step is to develop some functional examples:
+#+begin_src racket :lang htdp/bsl
+; WorldState Number Number String -> WorldState
+; places the car ar x-mouse
+; if the given me is "button-down"
+; given: 21 10 10 "enter"
+; wanted: 21
+; given: 42 10 20 "button-down"
+; wanted: 10
+; given: 42 10 20 "move"
+; wanted: 42
+(define (hyper x-position-of-car x-mouse y-mouse me)
+  x-position-of-car)
+#+end_src
+
+
+**** Exercise 44. Formulate the examples as BSL tests. Click /RUN/ and watch them fail.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define WHEEL-RADIUS 20)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 6))
+(define WIDTH-OF-WORLD (* WHEEL-RADIUS 40))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(define Y-CAR (- HEIGHT-OF-WORLD (/ (image-height CAR) 2)))
+
+(define CAR-STOP (+ WIDTH-OF-WORLD (/ (image-width CAR) 2)))
+
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+(define tree
+  (underlay/xy (circle (* WHEEL-RADIUS 2) "solid" "green")
+               (* WHEEL-RADIUS 9/5) (* WHEEL-RADIUS 3)
+               (rectangle
+                (* WHEEL-RADIUS 2/5)
+                (* WHEEL-RADIUS 4)
+                "solid" "brown")))
+
+(define Y-TREE (- HEIGHT-OF-WORLD (/ (image-height tree) 2)))
+
+(define TREE-BG (place-image
+                 tree
+                 (/ WIDTH-OF-WORLD 2)
+                 Y-TREE
+                 BACKGROUND))
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image CAR cw Y-CAR TREE-BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (+ cw 3))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (>= cw (- CAR-STOP 15)))
+
+; WorldState Number Number String -> WorldState
+; places the car at x-mouse
+; if the given me is "button-down"
+; given: 21 10 10 "enter"
+; wanted 21
+; given: 42 10 20 "button-down"
+; wanted: 10
+; given: 42 10 20 "move"
+; wanted: 42
+(define (hyper x-position-of-car x-mouse y-mouse me)
+  x-position-of-car)
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [on-mouse hyper]
+            [stop-when end?]))
+
+(check-expect (tock 10) 13)
+(check-expect (tock 18) 21)
+(check-expect (render 40) (place-image CAR 40 Y-CAR TREE-BG))
+(check-expect (render 160) (place-image CAR 160 Y-CAR TREE-BG))
+(check-expect (end? CAR-STOP) #true)
+(check-expect (hyper 21 10 20 "enter") 21)
+(check-expect (hyper 42 10 20 "button-down") 10)
+(check-expect (hyper 42 10 20 "move") 42)
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: Ran 8 tests.
+: 1 of the 8 tests failed.
+: Check failures:
+:                      ┌────┐              ┌────┐
+:         Actual value │ 42 │ differs from │ 10 │, the expected value.
+:                      └────┘              └────┘
+: in ob-eD4OfQ.rkt, line 102, column 0
+: 867
+
+**** If you solved =exercise 44=, rerun the program and watch all tests succeed. Assuming the tests do succeed, evaluate =(main 1)=
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define WHEEL-RADIUS 20)
+(define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+(define HEIGHT-OF-WORLD (* WHEEL-RADIUS 6))
+(define WIDTH-OF-WORLD (* WHEEL-RADIUS 40))
+
+(define WHEEL
+  (circle WHEEL-RADIUS "solid" "black"))
+
+(define SPACE
+  (rectangle (* WHEEL-RADIUS 2) 0 "solid" "white"))
+(define BOTH-WHEELS
+  (beside WHEEL SPACE WHEEL))
+
+(define BOTTOM-CAR
+  (overlay/xy
+    BOTH-WHEELS
+    (* WHEEL-RADIUS -1) (* WHEEL-RADIUS -1)
+    (rectangle
+      (* WHEEL-RADIUS 8)
+      (* WHEEL-RADIUS 2)
+      "solid" "red")))
+
+(define CAR
+  (above
+    (rectangle (* WHEEL-RADIUS 4) WHEEL-RADIUS "solid" "red")
+    BOTTOM-CAR))
+
+(define Y-CAR (- HEIGHT-OF-WORLD (/ (image-height CAR) 2)))
+
+(define CAR-STOP (+ WIDTH-OF-WORLD (/ (image-width CAR) 2)))
+
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+(define tree
+  (underlay/xy (circle (* WHEEL-RADIUS 2) "solid" "green")
+               (* WHEEL-RADIUS 9/5) (* WHEEL-RADIUS 3)
+               (rectangle
+                (* WHEEL-RADIUS 2/5)
+                (* WHEEL-RADIUS 4)
+                "solid" "brown")))
+
+(define Y-TREE (- HEIGHT-OF-WORLD (/ (image-height tree) 2)))
+
+(define TREE-BG (place-image
+                 tree
+                 (/ WIDTH-OF-WORLD 2)
+                 Y-TREE
+                 BACKGROUND))
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image CAR cw Y-CAR TREE-BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (+ cw 3))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (>= cw (- CAR-STOP 15)))
+
+; WorldState Number Number String -> WorldState
+; places the car at x-mouse
+; if the given me is "button-down"
+; given: 21 10 10 "enter"
+; wanted 21
+; given: 42 10 20 "button-down"
+; wanted: 10
+; given: 42 10 20 "move"
+; wanted: 42
+(define (hyper x-position-of-car x-mouse y-mouse me)
+  (cond
+    [(string=? "button-down" me) x-mouse]
+    [else x-position-of-car]))
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [on-mouse hyper]
+            [stop-when end?]))
+
+(check-expect (tock 10) 13)
+(check-expect (tock 18) 21)
+(check-expect (render 40) (place-image CAR 40 Y-CAR TREE-BG))
+(check-expect (render 160) (place-image CAR 160 Y-CAR TREE-BG))
+(check-expect (end? CAR-STOP) #true)
+(check-expect (hyper 21 10 20 "enter") 21)
+(check-expect (hyper 42 10 20 "button-down") 10)
+(check-expect (hyper 42 10 20 "move") 42)
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: All 8 tests passed!
+: 213
+
+
+*** 3.7 Virtual Pet Worlds
+
+**** Exercise 45. Design a "virtual cat" world program that continuously moves the cat from left to right. Let's call it =cat-prog= and let's assume it consumes the starting position of the cat. Furthermore, make the cat move three pixels per clock tick. Whenever the cat disappears on the right, it reappears on the left. You may wish to read up on the =modulo= function.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+(define cat1 (ellipse 20 30 "solid" "brown"))
+(define cat2 (ellipse 20 30 "solid" "orange"))
+
+(define CAT-WIDTH (image-width cat1))
+(define CAT-HEIGHT (image-height cat1))
+
+(define WIDTH-OF-WORLD (* CAT-WIDTH 12))
+(define HEIGHT-OF-WORLD (* CAT-HEIGHT 2))
+(define BACKGROUND (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+
+; Number -> Image
+; return a different image wenever the number is odd or not
+(define (cat-image cw)
+  (cond
+    [(odd? cw) cat1]
+    [else cat2]))
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image (cat-image cw) cw CAT-HEIGHT BACKGROUND))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (cond
+    [(>= WIDTH-OF-WORLD cw) (+ cw 3)]
+    [else 0]))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]))
+
+(main 0)
+#+end_src
+
+#+RESULTS:
+: 201
+
+
+**** Exercise 47. Design a world program that maintains and displays a "happiness gauge." Let's call it =gauge-prog=, and let's agree that happiness is a number between 0 ans 100 (inclusive).
++ The =gauge-prog= program consumes the current level of happiness. With each clock tick, the happiness level decreases by =0.1=; it never falls bellow =0=?. Every time the down arrow key is pressed, happiness decreases by =1/5=; every time the up arrow is pressed, happiness jumps by =1/3=.
++ To show the level of happiness, we use a scene with a solid red rectangle with a black frame. For a happiness level of 0, the red bar should be gone; for the maximum happiness level of =H=, the bar should go all the way across the scene.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define WIDTH-OF-WORLD 200)
+(define HEIGHT-OF-WORLD 20)
+
+(define MID-WORLD-W (/ WIDTH-OF-WORLD 2))
+(define MID-WORLD-H (/ HEIGHT-OF-WORLD 2))
+
+(define MAX-BAR WIDTH-OF-WORLD)
+(define MIN-BAR 0)
+(define C-DECREASE (/ (* WIDTH-OF-WORLD 0.1) 100))
+(define D-DECREASE (/ (* WIDTH-OF-WORLD 1/5) 100))
+(define U-INCREASE (/ (* WIDTH-OF-WORLD 1/3) 100))
+
+(define FRAME (rectangle
+               WIDTH-OF-WORLD
+               HEIGHT-OF-WORLD
+               "solid" "black"))
+
+(define BG (empty-scene WIDTH-OF-WORLD HEIGHT-OF-WORLD))
+(define BGWF (place-image FRAME MID-WORLD-W MID-WORLD-H BG))
+
+; Number -> Number
+; Returns the same number, unless it is out of range
+(define (limited-cw cw)
+  (cond
+    [(<  MAX-BAR cw) (- cw U-INCREASE)]
+    [(>= MIN-BAR cw) 1]
+    [else cw]))
+
+; Number -> Image
+; a status bar whose width represents the level of happiness
+(define (status-bar cw)
+  (rectangle (limited-cw cw) (- HEIGHT-OF-WORLD 2) "solid" "red"))
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image
+   (status-bar cw)
+   MID-WORLD-W
+   MID-WORLD-H
+   BGWF))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)  ; TODO: the cond is broken
+  (- cw C-DECREASE))
+
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+(define (keystroke cw ke)
+  (cond
+    [(string=? ke "up") (+ cw U-INCREASE)]
+    [(string=? ke "down") (- cw D-DECREASE)]
+    [else cw]))
+
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]
+            [on-key keystroke]))
+
+(main 200)
+#+end_src
+
+#+RESULTS:
+: 70/3
+
+
+** 4 Intervals, Enumerations, and Itemizations
+Enumerating elements works only when there is a finite number of them.
+To accommodate collections with "infinitely" many elements, we introduce intervals, which are collections of elements that satisfy a specific property.
+
++ Defining enumerations and intervals means distinguishing among different kinds of elements.
++ To distinguish in code requires conditional functions,that is, functions that choose different ways of computing results depending on the value of some argument.
+
+*** 4.1 Programming with Conditionals
+Brackets make =cond= lines stand out. It is fine to use ( ... ) in place of [ ... ].
+
+A =cond= line is also known as s /cond clause/.
+
+#+begin_src racket :lang htdp/bsl
+(define (next traffic-light-state)
+  (cond
+    [(string=? "red" traffic-light-state) "green"]
+    [(string=? "green" traffic-light-state) "yellow"]
+    [(string=? "yellow" traffic-light-state) "red"]))
+#+end_src
+
+- A bad use of =else=
+#+begin_src racket :lang htdp/bsl
+(cond
+  [(> x 0) 10]
+  [else 20]
+  [(< x 10) 30])
+#+end_src
+- the =else= keyword must be used in the last cond clause.
+
+A design example:
+#+begin_src racket :lang htdp/bsl
+; A PositiveNumber is a Number greater than/equal to 0
+
+; PositiveNumber -> String
+; computes the reward level from the given score s
+
+; first variant:
+(define (reward-comp s)
+  (cond
+    [(<= 0 s 10) "bronze"]
+    [(and (< 10 s) (<= s 20)) "silver"]
+    [(< 20 s) "gold"]))
+
+; second variant:
+(define (reward s)
+  (cond
+    [(<= 0 s 10) "bronze"]
+    [(and (< 10 s) (<= s 20)) "silver"]
+    [else "gold"]))
+
+(reward 3)
+
+(reward 21)
+#+end_src
+
+#+RESULTS:
+: "bronze"
+: "gold"
+
+Use =else= *if* you know that you want the exact opposite -called the /complement/- of all previous conditions in a =cond=.
+
+**** Exercise 48. Enter the definition of =reward= followed by =(reward 18)= into the definitions area of DrRacket and use the stepper to find out *how* DrRacket evaluates applications of the function.
+
+#+begin_src racket :lang htdp/bsl
+(define (reward s)
+  (cond
+    [(<= 0 s 10) "bronze"]
+    [(and (< 10 s) (<= s 20)) "silver"]
+    [else "gold"]))
+
+(reward 18)
+#+end_src
+
+#+RESULTS:
+: silver
+
+**** Exercise 49. A =cond= expression iss really just an expression and may therefore show up in the middle of another expression:
+Use the stepper to evaluate the expression for y as =100= and =210=.
+#+begin_src racket :lang htdp/bsl
+(define y1 100)
+(define y2 210)
+
+(- 200 (cond [(> y1 200) 0] [else y1]))
+(- 200 (cond [(> y2 200) 0] [else y2]))
+#+end_src
+
+#+RESULTS:
+: 100
+: 200
+
+**** Small exercise, I guess...
+Reformulate =create-rocket-scene.v5= to use a nested expression; the resulting function mentions =place-image= only once.
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define WIDTH  100)
+(define HEIGHT  60)
+(define MTSCN  (empty-scene WIDTH HEIGHT)) ; short for empty scene
+(define ROCKET (rectangle 10 35 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+(define (create-rocket-scene.v5 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 50 h MTSCN)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 50 ROCKET-CENTER-TO-TOP MTSCN)]))
+
+(define (crs.v6 h)
+  (place-image
+   ROCKET
+   50
+   (cond
+     [(<= h ROCKET-CENTER-TO-TOP) h] [else ROCKET-CENTER-TO-TOP])
+   MTSCN))
+
+(define (main ws)
+  (big-bang ws
+            [to-draw crs.v6]))
+
+(main 20)
+#+end_src
+
+#+RESULTS:
+: 20
+
+*** 4.3 Enumerations
+**** Exercise 50.
+If you copy and paste the above function definition into the definitions area of DrRacket and click /RUN/, DrRacket highlights two of the three =cond= lines.
+This coloring tells you that your tests cases do not cover the full conditional. Add enough tests to make DrRacket happy.
+#+begin_src racket :lang htdp/bsl
+(require test-engine/racket-tests)
+
+; TrafficLight -> TrafficLight
+; yields the next state given current state s
+(check-expect (traffic-light-next "red") "green")
+(check-expect (traffic-light-next "green") "yellow")
+(check-expect (traffic-light-next "yellow") "red")
+(define (traffic-light-next s)
+  (cond
+    [(string=? "red" s) "green"]
+    [(string=? "green" s) "yellow"]
+    [(string=? "yellow" s) "red"]))
+
+(test)
+#+end_src
+
+#+RESULTS:
+: All 3 tests passed!
+
+**** Exercise 51.
+Design a =big-bang= program that simulates a traffic light for a given duration.
+The program renders the state of a traffic light as a solid circle of the appropriate color, and it changes state on every clock tick.
+*Hint* Read the documentation for =big-bang=; there is a reason all these "words" are linked to their documentation.
+What is the most appropriate initial state? Ask your engineering friends.
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define RADIUS 10)
+(define WORLD-HEIGHT (* RADIUS 4))
+(define WORLD-WIDTH  (* RADIUS 4))
+
+(define BG (empty-scene WORLD-WIDTH WORLD-HEIGHT))
+
+; TrafficLight -> TrafficLight
+; yields the next state given current state s
+(check-expect (traffic-light-next "red") "green")
+(define (traffic-light-next s)
+  (cond
+    [(string=? "red" s) "green"]
+    [(string=? "green" s) "yellow"]
+    [(string=? "yellow" s) "red"]))
+
+
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image
+   (circle RADIUS "solid" cw)
+   (/ WORLD-WIDTH 2)
+   (/ WORLD-HEIGHT 2)
+   BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (traffic-light-next cw))
+
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+; (define (keystroke-handler cw ke) ...)
+
+; WorldState Number Number String -> WorldState
+; for each mouse gesture, big-bang obtains the next state
+; from (mouse-event-handler cw x y me) where x and y are
+; the coordinates of the event and me is its description
+; (define (mouse-event-handler cw x y me) ...)
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+; (define (end? cw) ...)
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [to-draw render]))
+
+(main "red")
+#+end_src
+
+#+RESULTS:
+: green
+
+
+**** Sample Problem
+Design a key-event handler that moves a red dot lift or right on an horizontal line in response to pressing the left and right arrow keys.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define RADIUS 10)
+(define WORLD-HEIGHT (* RADIUS 4))
+(define WORLD-WIDTH  (* RADIUS 20))
+
+(define BG (empty-scene WORLD-WIDTH WORLD-HEIGHT))
+
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image
+   (circle RADIUS "solid" "red")
+   cw
+   (/ WORLD-HEIGHT 2)
+   BG))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  cw)
+
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+(define (change cw ke)
+  (+ cw
+     (cond
+       [(string=? "left" ke) -3]
+       [(string=? "right" ke) 3]
+       [else 0])))
+
+; WorldState Number Number String -> WorldState
+; for each mouse gesture, big-bang obtains the next state
+; from (mouse-event-handler cw x y me) where x and y are
+; the coordinates of the event and me is its description
+; (define (mouse-event-handler cw x y me) ...)
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+; (define (end? cw) ...)
+
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+  (big-bang ws
+            [on-tick tock]
+            [on-key change]
+            [to-draw render]))
+
+(main 100)
+#+end_src
+
+#+RESULTS:
+: 91
+
+
+*** 4.4 Intervals
+**** Sample Problem
+Design a program that simulates the descent of a UFO
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; A WorldState is a Number.
+; interpretation number of pixels between the top and the UFO
+
+(define WIDTH 300) ; distances in terms of pixels
+(define HEIGHT 100)
+(define CLOSE (/ HEIGHT 3))
+(define MTSCN (empty-scene WIDTH HEIGHT)) ; short for empty scene
+(define MID-WIDTH (/ WIDTH 2))
+(define UFO (overlay (circle 10 "solid" "green")
+                     (rectangle 40 4 "solid" "green")))
+
+; WorldState -> WorldState
+(define (main y0)
+  (big-bang y0
+     [on-tick nxt]
+     [to-draw render]))
+
+; WorldState -> WorldState
+; computes next location of UFO
+(check-expect (nxt 11) 14)
+(define (nxt y)
+  (+ y 3))
+
+; WorldState -> Image
+; places UFO at given height into the center of MTSCN
+(check-expect (render 11) (place-image UFO MID-WIDTH 11 MTSCN))
+(define (render y)
+  (place-image UFO
+               MID-WIDTH
+               (cond [(> HEIGHT y) y] [else HEIGHT])
+               MTSCN))
+
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: Both tests passed!
+: 912
+
+
+**** Sample Problem Add a status line [0%]
+- [ ] It says ="descending"= when the UFO's height is above one third of the height of the canvas.
+- [ ] It switches to ="closing in"= below that.
+- [ ] And finally, when the UFO has reached the bottom of the canvas, the status notifies the player that the UFO has ="landed"=.
+- [ ] You are free to use appropriate colors for the status line
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; A WorldState is a Number.
+; interpretation number of pixels between the top and the UFO
+
+(define WIDTH 300) ; distances in terms of pixels
+(define HEIGHT 600)
+(define CLOSE (/ HEIGHT 3))
+(define MTSCN (empty-scene WIDTH HEIGHT)) ; short for empty scene
+(define MID-WIDTH (/ WIDTH 2))
+(define UFO (overlay (circle 10 "solid" "green")
+                     (rectangle 40 4 "solid" "green")))
+
+; WorldState -> WorldState
+(define (main y0)
+  (big-bang y0
+     [on-tick nxt]
+     [to-draw render]))
+
+; WorldState -> WorldState
+; computes next location of UFO
+(check-expect (nxt 11) 14)
+(define (nxt y)
+  (+ y 3))
+
+; WorldState -> Image
+; places UFO at given height into the center of MTSCN
+; (check-expect (render 11) (place-image UFO MID-WIDTH 11 MTSCN))
+(define (render y)
+  (place-image (render-text y)
+               60 60
+               (place-image UFO
+                            MID-WIDTH
+                            (cond [(> HEIGHT y) y] [else HEIGHT])
+                            MTSCN)))
+
+; Number -> Image
+; it generates a different rendered text in an image format
+; according to a given range of values
+; giving: 36, expect: "descending"
+; giving: 20, expect: "closing in"
+; giving: 0, expect: "landed"
+(define (render-text y)
+  (cond [(> CLOSE y) (text "descending" 20 "green")]
+        [(<= CLOSE y (- HEIGHT 1)) (text "closing in" 20 "yellow")]
+        [else (text "landed" 20 "red")]))
+
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: The test passed!
+: 1431
+
+
+**** Exercise 52. Which integers are contained in the fout intervals?
+- [3,5] -> 3, 4, 5
+
+- (3,5] -> 4, 5
+
+- [3,5) -> 3, 4
+
+- (3,5) -> 4
+
+**** Sample Problem
+Add a status line, *positioned at (20,20)*, that says "descending" when the UFO's height is above on third of the height of the canvas.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; A WorldState is a Number.
+; interpretation number of pixels between the top and the UFO
+
+(define WIDTH 300) ; distances in terms of pixels
+(define HEIGHT 600)
+(define CLOSE (/ HEIGHT 3))
+(define MTSCN (empty-scene WIDTH HEIGHT)) ; short for empty scene
+(define MID-WIDTH (/ WIDTH 2))
+(define UFO (overlay (circle 10 "solid" "green")
+                     (rectangle 40 4 "solid" "green")))
+
+; WorldState -> WorldState
+(define (main y0)
+  (big-bang y0
+     [on-tick nxt]
+     [to-draw render/status]))
+
+; WorldState -> WorldState
+; computes next location of UFO
+(check-expect (nxt 11) 14)
+(define (nxt y)
+  (+ y 3))
+
+; WorldState -> Image
+; places UFO at given height into the center of MTSCN
+; (check-expect (render 11) (place-image UFO MID-WIDTH 11 MTSCN))
+(define (render y)
+  (place-image UFO
+               MID-WIDTH
+               (cond [(> HEIGHT y) y] [else HEIGHT])
+               MTSCN))
+
+; WorldState -> Image
+; adds a status line to the scene created by render
+; (check-expect (render/status 42)
+;               (place-image (text "closing in" 11 "orange")
+;                            20 20
+;                            (render 42)))
+
+(define (render/status y)
+  (place-image
+    (cond
+      [(<= 0 y CLOSE)
+       (text "descending" 11 "green")]
+      [(and (< CLOSE y) (<= y HEIGHT))
+       (text "closing in" 11 "orange")]
+      [(> y HEIGHT)
+       (text "landed" 11 "red")])
+    20 20
+    (render y)))
+
+(test)
+(main 0)
+#+end_src
+
+#+RESULTS:
+: The test passed!
+: 978
+
+*** 4.5 Itemizations
+An interval distinguishes different sub-classes of numbers, which, in principle, is an infinitely large class.
+An enumeration spells out item for item the useful elements of an existing class of data.
+Some data definitions need to include elements from both.
+They use /itemizations/, which generalize intervals and enumerations. They allow the combination of any already-defined data classes with each other and with individual pieces of data.
+
++ Example of enumeration
+
+#+begin_quote
+; A /KeyEvent/ is one of:
+; - =1String=
+; - ="left"=
+; - ="right"=
+; - ="up"=
+; - =...=
+#+end_quote
+
+**** Sample Problem
+Design a program that launches a rocket when the user of your program presses the space bar. The program first displays the rocket sitting at the bottom of the canvas. Once launched, it moves upward at three pixels per clock tick.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define WIDTH  100)
+(define HEIGHT  600)
+(define YDELTA 3)
+(define MID-WIDTH (/ WIDTH 2))
+(define MTSCN  (empty-scene WIDTH HEIGHT)) ; short for empty scene
+(define ROCKET (rectangle 10 35 "solid" "red"))
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+
+; WorldState: data representing the current world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render cw)
+  (place-image
+   ROCKET
+   MID-WIDTH
+   (cond
+     [(<= cw ROCKET-CENTER-TO-TOP) cw] [else ROCKET-CENTER-TO-TOP])
+   MTSCN))
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (tock cw)
+  (cond [(= cw HEIGHT) HEIGHT] [else (- cw YDELTA)]))
+ 
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+(define (change cw ke)
+  (cond [(string=? ke " ") (- HEIGHT YDELTA)] [else cw]))
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw)
+  (<= cw 0))
+
+; WorldState -> WorldState
+(define (main cw)
+  (big-bang cw
+     [on-tick tock]
+     [to-draw render]
+     [on-key change]
+     [stop-when end?]))
+
+(main HEIGHT)
+#+end_src
+
+#+RESULTS:
+: 0
+
+**** Exercise 54.
+Why would it be *incorrect* to use (=string==? /"resting"/) as the first condition in =show=? Conversely, formulate a completely accurate condition, that is, a *Boolean* expression that evaluates to =#true= precisely when x belongs to the first sub-class of *LRCD*.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; Following the recipe, we first collect constants
+
+(define HEIGHT 300)
+(define WIDTH 100)
+(define YDELTA 3)
+
+(define BACKG (empty-scene WIDTH HEIGHT))
+(define ROCKET (rectangle 5 30 "solid" "red"))
+
+(define CENTER (/ (image-height ROCKET) 2))
+
+; Next, we turn the ro the development of a data definition
+
+; An LRCD (for launching rocket countdown) is one of:
+; - "resing"
+; - a Number between -3 and -1
+; - a NonnegativeNumber
+; Interpretation: a grounded rocket, in countdown mode,
+; a number denotes the number of pixels between the
+; top of the canvas and the rocket (its height)
+
+; The wishlist for a for a function that renders states as images
+
+; LRCD -> Image
+; renders the states as a resting or flying rocket
+(define (show x)
+  (cond
+    [(string? x)
+     (place-image ROCKET 10 (- HEIGHT CENTER) BACKG)]
+    [(<= -3 x -1)
+     (place-image (text (number->string x) 20 "red")
+                  10 (* 3/4 WIDTH)
+                  (place-image ROCKET
+                               10 (- HEIGHT CENTER)
+                               BACKG))]
+    [(>= x 0)
+     (place-image ROCKET 10 (- x CENTER) BACKG)]))
+
+; LRCD KeyEvent -> LRCD
+; starts thhe countdown when space bar is pressed,
+; if the rocket is still resting
+(define (launch x ke)
+  x)
+
+; LRCD -> LRCD
+; raises the rocket by YDELTA,
+; if it is moving already
+(define (fly x)
+  x)
+
+; we use the design recipe for functions to create complete
+; definitions for all three of them:
+
+(check-expect
+ (show "resting")
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show -2)
+ (place-image (text "-2" 20 "red")
+              10 (* 3/4 WIDTH)
+              (place-image ROCKET 10 (- HEIGHT CENTER) BACKG)))
+
+(check-expect
+ (show 53)
+ (place-image ROCKET 10 (- 53 CENTER) BACKG))
+
+(check-expect
+ (show HEIGHT)
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show 0)
+ (place-image ROCKET 10 (- 0 CENTER) BACKG))
+(test)
+#+end_src
+
+#+RESULTS:
+: All 5 tests passed!
+
+**** Exercise 55. Take another look at =show=. It contains three instances of an expression with the approximate shape:
+=(place-image ROCKET 10 (- ... CENTER) BACKG)=
+This expression appears three times in the function: twice to draw a resting rocket and once to draw a flying rocket. Define an auxiliary function that performs this work and thus shorten =show=.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; Following the recipe, we first collect constants
+
+(define HEIGHT 300)
+(define WIDTH 100)
+(define YDELTA 3)
+
+(define BACKG (empty-scene WIDTH HEIGHT))
+(define ROCKET (rectangle 5 30 "solid" "red"))
+
+(define CENTER (/ (image-height ROCKET) 2))
+
+; Next, we turn the ro the development of a data definition
+
+; An LRCD (for launching rocket countdown) is one of:
+; - "resing"
+; - a Number between -3 and -1
+; - a NonnegativeNumber
+; Interpretation: a grounded rocket, in countdown mode,
+; a number denotes the number of pixels between the
+; top of the canvas and the rocket (its height)
+
+; The wishlist for a for a function that renders states as images
+
+; LRCD -> Image
+; renders the states as a resting or flying rocket
+(define (show x)
+  (cond
+    [(string? x)
+     (place-rocket HEIGHT)]
+    [(<= -3 x -1)
+     (place-image (text (number->string x) 20 "red")
+                  10 (* 3/4 WIDTH)
+                  (place-rocket HEIGHT))]
+    [(>= x 0)
+     (place-rocket x)]))
+
+; LRCD KeyEvent -> LRCD
+; starts the countdown when space bar is pressed,
+; if the rocket is still resting
+(define (launch x ke)
+  x)
+
+; LRCD -> LRCD
+; raises the rocket by YDELTA,
+; if it is moving already
+(define (fly x)
+  x)
+
+; Number -> LRCD
+; given x position it positions a rocket
+(define (place-rocket x)
+  (place-image ROCKET 10 (- x CENTER) BACKG))
+
+; we use the design recipe for functions to create complete
+; definitions for all three of them:
+
+(check-expect
+ (show "resting")
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show -2)
+ (place-image (text "-2" 20 "red")
+              10 (* 3/4 WIDTH)
+              (place-image ROCKET 10 (- HEIGHT CENTER) BACKG)))
+
+(check-expect
+ (show 53)
+ (place-image ROCKET 10 (- 53 CENTER) BACKG))
+
+(check-expect
+ (show HEIGHT)
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show 0)
+ (place-image ROCKET 10 (- 0 CENTER) BACKG))
+
+; launch function, tests formulatd with the header information
+(check-expect (launch "resting" " ") -3)
+(check-expect (launch "resting" "a") "resting")
+(check-expect (launch -3 " ") -3)
+(check-expect (launch -1 " ") -1)
+(check-expect (launch 33 " ") 33)
+(check-expect (launch 33 "a") 33)
+
+(test)
+#+end_src
+
+#+RESULTS:
+: All 5 tests passed!
+
+**** Exercise 56.
+Define =main2= so that you can launch the rocket and watch it lift off.
+If you watch the entire launch, you will notice that once the rocket reaches the top something curious happens.
+Explain. Add a =stop-when= clause to =main2= so that the simulation of the liftoff stops gracefully when the rocket is out of sight.
+
+#+begin_src racket :lang htdp/bsl
+(require 2htdp/image)
+(require 2htdp/universe)
+(require test-engine/racket-tests)
+
+; Following the recipe, we first collect constants
+
+(define HEIGHT 100)
+(define WIDTH 100)
+(define YDELTA 3)
+
+(define BACKG (empty-scene WIDTH HEIGHT))
+(define ROCKET (rectangle 5 30 "solid" "red"))
+
+(define CENTER (/ (image-height ROCKET) 2))
+
+; Next, we turn the ro the development of a data definition
+
+; An LRCD (for launching rocket countdown) is one of:
+; - "resing"
+; - a Number between -3 and -1
+; - a NonnegativeNumber
+; Interpretation: a grounded rocket, in countdown mode,
+; a number denotes the number of pixels between the
+; top of the canvas and the rocket (its height)
+
+; The wishlist for a for a function that renders states as images
+
+; LRCD -> Image
+; renders the states as a resting or flying rocket
+(define (show x)
+  (cond
+    [(string? x)
+     (place-rocket HEIGHT)]
+    [(<= -3 x -1)
+     (place-image (text (number->string x) 20 "red")
+                  10 (* 3/4 WIDTH)
+                  (place-rocket HEIGHT))]
+    [(>= x 0)
+     (place-rocket x)]))
+
+; LRCD KeyEvent -> LRCD
+; starts the countdown when space bar is pressed,
+; if the rocket is still resting
+(define (launch x ke)
+  (cond
+    [(string? x) (if (string=? " " ke) -3 x)]
+    [(<= -3 x -1) x]
+    [(>= x 0) x]))
+
+; LRCD -> LRCD
+; raises the rocket by YDELTA,
+; if it is moving already
+
+(check-expect (fly "resting") "resting")
+(check-expect (fly -3) -2)
+(check-expect (fly -1) HEIGHT)
+(check-expect (fly 10) (- 10 YDELTA))
+(check-expect (fly 22) (- 22 YDELTA))
+
+(define (fly x)
+  (cond
+    [(string? x) x]
+    [(<= -3 x -1) (if (= x -1) HEIGHT (+ x 1))]
+    [(>= x 0) (- x YDELTA)]))
+
+; Number -> LRCD
+; given x position it positions a rocket
+(define (place-rocket x)
+  (place-image ROCKET 10 (- x CENTER) BACKG))
+
+; LRCD -> LRCD
+; stops the animation when the rocket dissapears at the ceiling
+(define (end? x)
+  (if (string? x) #false (<= 1 x 3)))
+
+; LRCD -> LRCD
+(define (main1 s)
+  (big-bang s
+            [to-draw show]
+            [on-key launch]))
+
+(define (main2 s)
+  (big-bang s
+            [stop-when end?]
+            [to-draw show]
+            [on-key launch]
+            [on-tick fly 1]))
+
+; we use the design recipe for functions to create complete
+; definitions for all three of them:
+
+(check-expect
+ (show "resting")
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show -2)
+ (place-image (text "-2" 20 "red")
+              10 (* 3/4 WIDTH)
+              (place-image ROCKET 10 (- HEIGHT CENTER) BACKG)))
+
+(check-expect
+ (show 53)
+ (place-image ROCKET 10 (- 53 CENTER) BACKG))
+
+(check-expect
+ (show HEIGHT)
+ (place-image ROCKET 10 (- HEIGHT CENTER) BACKG))
+
+(check-expect
+ (show 0)
+ (place-image ROCKET 10 (- 0 CENTER) BACKG))
+
+; launch function, tests formulatd with the header information
+(check-expect (launch "resting" " ") -3)
+(check-expect (launch "resting" "a") "resting")
+(check-expect (launch -3 " ") -3)
+(check-expect (launch -1 " ") -1)
+(check-expect (launch 33 " ") 33)
+(check-expect (launch 33 "a") 33)
+
+(main2 "resting")
+(test)
+#+end_src
+
+#+RESULTS:
+: 1
+: All 16 tests passed!
+
++ Without an =stop-when= clause, the animations loops as it reaches a negative height between -3 and -1 (inclusive), as the =fly= function keeps decreasing the value, then, when it reaches the second /cond statement/ of the function, the countdown restarts and the launch starts again.
