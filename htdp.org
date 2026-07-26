@@ -276,7 +276,7 @@ A body expression, or rather an s-exp, is a function application
 #+end_src
 
 #+RESULTS:
-: 134
+: 2419
 
 **** The animate function
 It does work by sending 28 clock ticks per second to the nested function
@@ -321,7 +321,7 @@ Functions for many situations
 #+end_src
 
 #+RESULTS:
-: 1220
+: 189
 
 *** The =define= statement
 =(define /Name/ /Expression/)=
@@ -348,7 +348,7 @@ Functions for many situations
 #+end_src
 
 #+RESULTS:
-: 1157
+: 100
 
 *** Refactoring v1.1
 
@@ -406,6 +406,9 @@ Functions for many situations
 (animate picture-of-rocket.v2)
 #+end_src
 
+#+RESULTS:
+: 500
+
 - [X] How would you change the program so that it depicts the landing of a green UFO (unidentified flying object)? Drawing the UFO is easy:
 
 =(overlay (circle 10 "solid" "green")=
@@ -437,7 +440,7 @@ Functions for many situations
 #+end_src
 
 #+RESULTS:
-: 170
+: 465
 
 - [X] How would you change the program so that the background is always blue?
 
@@ -469,7 +472,7 @@ Functions for many situations
 #+end_src
 
 #+RESULTS:
-: 265
+: 431
 
 - [X] How would you change the program so that the rocket lands on a flat rock bed that is 10 pixels higher than the bottom of the scene? Don’t forget to change the scenery, too.
 #+begin_src racket
@@ -504,7 +507,7 @@ Functions for many situations
 #+end_src
 
 #+RESULTS:
-: 566
+: 429
 
 **** Getting rid of the last magic number
 #+begin_src racket
@@ -538,7 +541,10 @@ Functions for many situations
 (animate picture-of-rocket.v2)
 #+end_src
 
-**** Changing the h fot t in the function definition
+#+RESULTS:
+: 464
+
+**** Changing the "h" for "t" in the function definition
 To state that the function actually operates with time
 
 #+begin_src racket
@@ -609,7 +615,7 @@ Redoing everything to make it more like the program in the book
 #+end_src
 
 #+RESULTS:
-: 170
+: 100
 
 * Fixed-Size Data
 Every programming language comes with a language of data an a language of operations on data.
@@ -736,7 +742,7 @@ A quick example
     [(> min-s i)
      "Less than zero"]
     [(> i max-s)
-     "out f range"]))
+     "out of range"]))
 
 (delete-ith str i)
 (delete-ith str 11)
@@ -746,7 +752,7 @@ A quick example
 
 #+RESULTS:
 : "helloorld"
-: "out f range"
+: "out of range"
 : "elloworld"
 : "Less than zero"
 
@@ -971,6 +977,7 @@ A predicate is a function that consumes a value and determines whether or not it
 
 (rational? pi)
 (sqrt -1)
+(boolean? #false)
 #+end_src
 
 #+RESULTS:
@@ -980,6 +987,7 @@ A predicate is a function that consumes a value and determines whether or not it
 : #false
 : #true
 : 0+1i
+: #true
 
 **** Exercise 9
 #+begin_src racket
@@ -1032,9 +1040,16 @@ Examples:
 (define (f x) 1)
 (define (g x y) (+ 1 1))
 (define (h x y z) (+ (* 2 2) 3))
+
+(f 100000000000000000000000000000000)
+(g 500000000000000000000000000 0)
+(h 42 0 0)
 #+end_src
 
 #+RESULTS:
+: 1
+: 2
+: 7
 
 **** Variables aren't data; they represent data. For example, a constant definition such as
 #+begin_src racket
@@ -1256,11 +1271,21 @@ Examples:
 (define (string-insert str i)
   (string-append (substring str 0 i) "_" (substring str i)))
 
+(define (string-insert2 str i) 
+  (if (<= (string-length str) 0)
+      "empty string"
+      (string-append (substring str 0 i) "_" (substring str i))))
+
 (string-insert str i)
+(string-insert2 str i)
+(string-insert2 "" i)
 #+end_src
 
 #+RESULTS:
-: hello_world
+: "hello_world"
+: "hello_world"
+: "empty string"
+
 
 **** Exercise 20. Define the function =string-delete=, which consumes a string plus a number =i= and deletes the /ith/ position from =str=. Assume =i= is a number between 0 (inclusive)and the length of the given string (exclusive). Can =string-delete= deal with empty strings?
 
@@ -1282,7 +1307,7 @@ Examples:
     [(> min-s i)
      "Less than zero"]
     [(> i max-s)
-     "out f range"]))
+     "out of range"]))
 
 (string-delete str i)
 (string-delete str 11)
@@ -1292,7 +1317,7 @@ Examples:
 
 #+RESULTS:
 : "helloorld"
-: "out f range"
+: "out of range"
 : "elloworld"
 : "Less than zero"
 
@@ -1349,7 +1374,12 @@ Sadly done in DrRacket...
   (or (not x) y))
 
 (==> #true #false)
+(==> #false #false)
 #+end_src
+
+#+RESULTS:
+: #false
+: #true
 
 **** Exercise 25. Fix this abomination:
 #+begin_src racket
@@ -1392,7 +1422,7 @@ Sadly done in DrRacket...
 
 #+RESULTS:
 : hellow_orld
-+ And I was right :D
+
 
 *** Composing Functions
 A program rarely consists of a single function. Typically, programs consist of a /main/ definition and several other functionsand turn the result of one function application into the input of another.
